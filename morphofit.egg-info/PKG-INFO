@@ -1,0 +1,46 @@
+Metadata-Version: 1.1
+Name: galfit-srf
+Version: 0.1.0
+Summary: A Python morphological analysis package of galaxies
+Home-page: https://github.com/torluca/morphofit
+Author: Luca Tortorelli
+Author-email: Luca.Tortorelli@physik.lmu.de
+License: MIT License
+Description: =============================
+        morphofit
+        =============================
+
+        A Python morphological analysis package of galaxies
+
+
+        Features
+        --------
+
+        * TODO
+
+
+
+
+        Documentation
+        -------------
+
+        The full documentation can be generated with Sphinx
+
+        :
+
+        History
+        -------
+
+        0.1.0 (2020-01-24)
+        ++++++++++++++++++
+
+        * First release on PyPI.
+
+Keywords: morphofit
+Platform: UNKNOWN
+Classifier: Development Status :: 2 - Pre-Alpha
+Classifier: Intended Audience :: Science/Research
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Natural Language :: English
+Classifier: Programming Language :: Python :: 3.9

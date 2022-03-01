@@ -1,0 +1,136 @@
+############################################################
+####        Run SExtractor
+############################################################
+
+# This script allows to create a table for SExtractor run
+- name: create_sextractor_table
+  cmd: python create_table_for_sextractor.py
+
+# This script allows to run SExtractor. Indices in tasks should be in the range '0 > number_of_targets'.
+# --function can be main, check_missing, rerun_missing, all
+# --mode=run-tasks runs in parallel using multiprocessing, --mode=run-mpi using MPI.
+# --mode=jobarray runs using the HPC scheduler
+- name: run_sextractor
+  cmd: esub main_sextractor.py --mode=run-tasks --tasks='0>3' --filename_h5pytable='table_sextractor_run.h5' --function=all --n_cores=3
+
+############################################################
+####        (Optional) Create target galaxies catalogue
+############################################################
+
+# This script allows to match SExtractor simulated catalogue with simulated input galaxies catalogue
+- name: match_sextractor_with_ucat_catalogue
+  cmd: esub main_create_target_galaxies_catalogue_sims.py --mode=run-tasks --tasks='0,1' --function=main --n_cores=2
+
+# This script allows to match SExtractor catalogue with target catalogue
+- name: match_sextractor_with_target_catalogue
+  cmd: esub main_create_target_galaxies_catalogue.py --mode=run-tasks --tasks='0,1,2' --function=all --n_cores=3
+
+############################################################
+####        Create PSF images
+############################################################
+
+# This script allows to create a table for PSF creation run
+- name: create_psf_table
+  cmd: python create_table_for_psf_images_per_target_deprecated.py
+
+# This script allows to create PSF images. Indices in tasks should be in the range '0 > number_of_targets'.
+# --function can be main, check_missing, rerun_missing, all
+# --mode='run-tasks' runs in parallel using multiprocessing, --mode='run-mpi' using MPI.
+- name: create_psf_images
+  cmd: esub main_create_psf_images_per_target_deprecated.py --mode=run-tasks --tasks='0>3' --filename_h5pytable='table_psf_creation_run.h5' --function=all --n_cores=3
+
+############################################################
+####        Run GALFIT on stamps
+############################################################
+
+# This script allows to create a table for GALFIT run on stamps
+- name: create_galfit_stamps_table
+  cmd: python create_table_for_galfit_stamps_deprecated.py
+
+# This script allows to run GALFIT on stamps. Indices in tasks should be in the range 0 and the number of total
+# combinations of psf images, sigma images, background estimation methods, wavebands, target galaxies and
+# target clusters.
+# --function can be main, check_missing, rerun_missing, all
+# --mode='run-tasks' runs in parallel using multiprocessing, --mode='run-mpi' using MPI.
+- name: run_galfit_stamps
+  cmd: esub main_galfit_stamps_deprecated_old.py --mode=run-tasks --tasks='0>1000' --filename_h5pytable='table_galfit_on_stamps_run.h5' --function=all --n_cores=4
+
+############################################################
+####        Create master catalogue for GALFIT on stamps
+############################################################
+
+# This script allows to create a table for the master catalogue creation
+- name: create_master_table_galfit_stamps
+  cmd: python create_table_for_masterstamps_deprecated.py
+
+# This script allows to create the master catalogue. Indices in tasks should be in the range '0 > number_of_targets'.
+- name: run_master_catalogue_creation
+  cmd: esub main_create_masterstamps_catalogue_deprecated_old.py --mode=run-tasks --tasks='0,1,2' --filename_h5pytable='table_masterstamps.h5' --function=all --n_cores=3
+
+############################################################
+####        Create regions
+############################################################
+
+# This script allows to create regions from full image
+- name: create_regions
+  cmd: python create_table_for_cutting_regions_deprecated.py
+
+# This script allows to create regions. Indices in tasks should be in the range '0 > number_of_targets'.
+- name: run_create_regions
+  cmd: esub main_create_regions_deprecated.py --mode=run-tasks --tasks='0,1,2' --filename_h5pytable='table_cutting_regions_run.h5' --function=all --n_cores=3
+
+############################################################
+####        Run GALFIT on regions
+############################################################
+
+# This script allows to create a table for GALFIT run on regions.
+- name: create_galfit_regions_table
+  cmd: python create_table_for_galfit_regions_deprecated.py
+
+# This script allows to run GALFIT on regions. Indices in tasks should be in the range 0 and the number of total
+# combinations of psf images, sigma images, background estimation methods, wavebands, regions and
+# target clusters.
+# --function can be main, check_missing, rerun_missing, all
+# --mode='run-tasks' runs in parallel using multiprocessing, --mode='run-mpi' using MPI.
+- name: run_galfit_regions
+  cmd: esub main_galfit_regions_deprecated_211213.py --mode=run-tasks --tasks='0>1000' --filename_h5pytable='table_galfit_on_regions_run.h5' --function=all --n_cores=4
+
+############################################################
+####        Create master catalogue for GALFIT on regions
+############################################################
+-
+This script allows to create a table for the master catalogue creation
+- name: create_master_table_galfit_regions
+  cmd: python create_table_for_masterregions_deprecated_211213.py
+
+# This script allows to create the master catalogue. Indices in tasks should be in the range '0 > number_of_targets'.
+- name: run_master_catalogue_creation
+  cmd: esub main_create_masterregions_catalogue_deprecated_211213.py --mode=run-tasks --tasks='0,1,2' --filename_h5pytable='table_masterregions.h5' --function=all --n_cores=3
+
+############################################################
+####        Run GALFIT on full image
+############################################################
+
+# This script allows to create a table for GALFIT run on full image
+- name: create_galfit_fullimage_table
+  cmd: python create_table_for_galfit_fullimage_deprecated_211213.py
+
+# This script allows to run GALFIT on full image. Indices in tasks should be in the range 0 and the number of total
+# combinations of psf images, sigma images, background estimation methods, wavebands, regions and
+# target clusters.
+# --function can be main, check_missing, rerun_missing, all
+# --mode='run-tasks' runs in parallel using multiprocessing, --mode='run-mpi' using MPI.
+- name: run_galfit_fullimage
+  cmd: esub main_galfit_fullimage_deprecated_211213.py --mode=run-tasks --tasks='0>1000' --filename_h5pytable='table_galfit_on_fullimage_run.h5' --function=all --n_cores=4
+
+############################################################
+####        Create master catalogue for GALFIT on full image
+############################################################
+
+This script allows to create a table for the master catalogue creation
+- name: create_master_table_galfit_fullimage
+  cmd: python create_table_for_masterfullimage_deprecated_211213.py
+
+# This script allows to create the master catalogue. Indices in tasks should be in the range '0 > number_of_targets'.
+- name: run_master_catalogue_creation
+  cmd: esub main_create_masterfullimage_catalogue_deprecated_211213.py --mode=run-tasks --tasks='0,1,2' --filename_h5pytable='table_masterfullimage.h5' --function=all --n_cores=3

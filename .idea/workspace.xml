@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="4eb487c0-7bc9-4738-b4b1-924a0939fdce" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/morphofit/deprecated_functions_scripts/pipeline_deprecated.yaml" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../legacy_abc/legacy_abc/joint_survey_analysis/utils_joint_survey_abc_run.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../legacy_abc/legacy_abc/joint_survey_analysis/apps/run_cat_comb_joint_survey_abc_deprecated.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/morphofit/utils.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/morphofit/deprecated_functions.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/morphofit/catalogue_managing.py" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="JupyterTrust" id="6359342b-4bf5-483b-b70c-5aabd0078523" />
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="1Wq2F9NyFrLAKtvZHBgvWfcCA1p" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="org.jetbrains.plugins.github.ui.GithubSettingsConfigurable" />
+  </component>
+  <component name="ReaderModeSettings">
+    <option name="enabled" value="false" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/morphofit/deprecated_functions_scripts" />
+      <recent name="$PROJECT_DIR$/morphofit/main_functions_deprecated" />
+    </key>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="4eb487c0-7bc9-4738-b4b1-924a0939fdce" name="Default Changelist" comment="" />
+      <created>1579862697314</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1579862697314</updated>
+      <workItem from="1579862702767" duration="1787000" />
+      <workItem from="1579872826582" duration="541000" />
+      <workItem from="1580117544602" duration="620000" />
+      <workItem from="1580137870770" duration="85955000" />
+      <workItem from="1582820285445" duration="39804000" />
+      <workItem from="1584957453154" duration="4384000" />
+      <workItem from="1586956914842" duration="671000" />
+      <workItem from="1586964841436" duration="6755000" />
+      <workItem from="1587485440013" duration="27785000" />
+      <workItem from="1588242906916" duration="80882000" />
+      <workItem from="1589805966764" duration="109931000" />
+      <workItem from="1591627284709" duration="13519000" />
+      <workItem from="1591870366600" duration="36201000" />
+      <workItem from="1592467825598" duration="7018000" />
+      <workItem from="1593187437258" duration="2172000" />
+      <workItem from="1593616138163" duration="16315000" />
+      <workItem from="1595240652429" duration="6276000" />
+      <workItem from="1598951465852" duration="369000" />
+      <workItem from="1598954822265" duration="46782000" />
+      <workItem from="1602061582261" duration="3053000" />
+      <workItem from="1603288972563" duration="1342000" />
+      <workItem from="1603457285629" duration="63587000" />
+      <workItem from="1607265115515" duration="7057000" />
+      <workItem from="1607435302517" duration="24956000" />
+      <workItem from="1608545807673" duration="32000" />
+      <workItem from="1608545848870" duration="21000" />
+      <workItem from="1608546479073" duration="8588000" />
+      <workItem from="1608833357616" duration="757000" />
+      <workItem from="1609008534375" duration="3000" />
+      <workItem from="1609175055181" duration="44783000" />
+      <workItem from="1611135708936" duration="11273000" />
+      <workItem from="1611572410833" duration="11518000" />
+      <workItem from="1611828703990" duration="24343000" />
+      <workItem from="1612777813488" duration="33314000" />
+      <workItem from="1613558456172" duration="37446000" />
+      <workItem from="1617266308533" duration="1150000" />
+      <workItem from="1617965965283" duration="607000" />
+      <workItem from="1617979220521" duration="264000" />
+      <workItem from="1617979558202" duration="16000" />
+      <workItem from="1618162164738" duration="3927000" />
+      <workItem from="1618409026429" duration="2326000" />
+      <workItem from="1618590358909" duration="329000" />
+      <workItem from="1618740993397" duration="184000" />
+      <workItem from="1618995014596" duration="88000" />
+      <workItem from="1618996384505" duration="684000" />
+      <workItem from="1619099523724" duration="2961000" />
+      <workItem from="1620830322123" duration="715000" />
+      <workItem from="1622464447245" duration="95000" />
+      <workItem from="1627912397437" duration="12324000" />
+      <workItem from="1628593179848" duration="593000" />
+      <workItem from="1628601001298" duration="594000" />
+      <workItem from="1628870391039" duration="1517000" />
+      <workItem from="1629045907247" duration="3154000" />
+      <workItem from="1635323254621" duration="25422000" />
+      <workItem from="1635846448960" duration="22531000" />
+      <workItem from="1636103855822" duration="164000" />
+      <workItem from="1636107101439" duration="681000" />
+      <workItem from="1636108081579" duration="539000" />
+      <workItem from="1636109201493" duration="95305000" />
+      <workItem from="1637593266273" duration="164511000" />
+      <workItem from="1642082060146" duration="1048000" />
+      <workItem from="1642090625416" duration="983000" />
+      <workItem from="1642436302953" duration="14942000" />
+      <workItem from="1643205291547" duration="603000" />
+      <workItem from="1643281223825" duration="10002000" />
+      <workItem from="1643628262919" duration="62727000" />
+      <workItem from="1645541939268" duration="27000" />
+      <workItem from="1645806332844" duration="11500000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+  </component>
+</project>

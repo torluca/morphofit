@@ -1,0 +1,323 @@
+############################################################
+####        Run SExtractor
+############################################################
+
+# This script allows to create a table for SExtractor run.
+# Indices in tasks should be in the range '0 > number_of_target_fields'.
+# --function can be main, check_missing, rerun_missing, all
+# --mode=run-tasks runs in parallel using multiprocessing, --mode=run-mpi using MPI, --mode=run runs serially
+# --mode=jobarray runs using the HPC scheduler
+- name: create_sextractor_table
+  cmd: esub create_table_for_sextractor.py --mode=run-tasks --tasks='0>3' --root_path='/Users/torluca/Desktop/test'
+  --wavebands_list='f435w,f606w,f814w,f105w,f125w,f140w,f160w'
+  --h5pytable_folder='/Users/torluca/Desktop/test/h5table/' --h5pytable_prefix='sextractor_run_table'
+  --telescope_name='HST' --target_field_names='abells1063,macs0416,macs1149' --sci_images_suffix='drz.fits'
+  --rms_images_suffix='rms.fits' --exp_images_suffix='exp.fits' --ext_star_cat_suffix='star_positions_isol_f160w.fits'
+  --image_archive_prefix='images' --resources_archive_prefix='res_sextractor_files'
+  --star_catalogues_path='/Users/torluca/tmp/astro3/morphofit/morphofit/res/star_catalogues/'
+  --pixel_scale=0.060 --seeing_initial_guesses='0.1,0.1,0.1,0.1,0.1,0.1,0.1'
+  --detect_minarea=10 --detect_thresh=1.0 --analysis_thresh=1.5 --deblend_nthresh=64
+  --deblend_mincont=0.0001 --phot_apertures='3,5,8,10,13,15,18,20,23,25,28,30'
+  --phot_autoparams='2.5,3.5' --phot_petroparams='2.0,3.5' --phot_autoapers='0.0,0.0'
+  --phot_fluxfrac=0.5 --back_size=64 --back_filtersize=3
+  --sextractor_binary_filename='/usr/local/bin/sex'
+  --sextractor_config_filename='default.sex' --sextractor_params_filename='default.param'
+  --sextractor_filter_filename='gauss_3.0_5x5.conv' --sextractor_nnw_filename='default.nnw'
+  --sextractor_checkimages='SEGMENTATION' --sextractor_checkimages_endings='seg'
+  --sextractor_resources_path='/Users/torluca/tmp/astro3/morphofit/morphofit/res/sextractor/'
+  --function=all --n_cores=3
+
+# This script allows to run SExtractor.
+# Indices in tasks should be in the range '0 > number_of_target_fields'.
+# --function can be main, check_missing, rerun_missing, all
+# --mode=run-tasks runs in parallel using multiprocessing, --mode=run-mpi using MPI, --mode=run runs serially
+# --mode=jobarray runs using the HPC scheduler
+- name: run_sextractor
+  cmd: esub main_sextractor.py --mode=run-tasks --tasks='0>3' --root_path='/Users/torluca/Desktop/test'
+  --h5pytable_folder='/Users/torluca/Desktop/test/h5table' --h5pytable_prefix='sextractor_run_table'
+  --image_archive_prefix='images' --resources_archive_prefix='res_sextractor_files'
+  --temp_dir_path='/Users/torluca/Desktop/test' --local_or_cluster='local'
+  --sextractor_forced_catalogue_suffix='forced.cat' --sextractor_checkimages_endings='seg'
+  --sextractor_ra_keyword='ALPHAWIN_J2000' --sextractor_dec_keyword='DELTAWIN_J2000'
+  --star_catalogue_ra_keyword='ra' --star_catalogue_dec_keyword='dec'
+  --detection_image_suffix='detection.fits' --parameters_table_suffix='param_table.fits'
+  --multiband_catalogue_suffix='multiband.forced.cat' --function=all --n_cores=3
+
+############################################################
+####        (Optional) Create target galaxies catalogue
+############################################################
+
+# This script allows to match SExtractor simulated catalogue with simulated input galaxies catalogue
+- name: match_sextractor_with_ucat_catalogue
+  cmd: esub main_create_target_galaxies_catalogue_sims.py --mode=run-tasks --tasks='0,1' --function=main --n_cores=2
+
+# This script allows to match SExtractor catalogue with target catalogue
+- name: match_sextractor_with_target_catalogue
+  cmd: esub main_create_target_galaxies_catalogue.py --mode=run-tasks --tasks='0,1,2' --function=all --n_cores=3
+
+############################################################
+####        Create PSF images
+############################################################
+
+# This script allows to create a table for PSF creation run.
+# Indices in tasks should be in the range '0 > number_of_target_fields'.
+# --function can be main, check_missing, rerun_missing, all
+# --mode=run-tasks runs in parallel using multiprocessing, --mode=run-mpi using MPI, --mode=run runs serially
+# --mode=jobarray runs using the HPC scheduler
+- name: create_psf_table
+  cmd: esub create_table_for_psf_images_per_target_field.py
+  --mode=run-tasks --tasks='0>3' --root_path='/Users/torluca/Desktop/test'
+  --h5pytable_folder='/Users/torluca/Desktop/test/h5table' --h5pytable_prefix='table_psf_creation'
+  --wavebands_list='f435w,f606w,f814w,f105w,f125w,f140w,f160w' --target_field_names='abells1063,macs0416,macs1149'
+  --parameters_table_suffix='param_table.fits' --sci_images_suffix='drz.fits' --image_archive_prefix='images_for_psf'
+  --resources_archive_prefix='res_psf_files' --ext_star_cat_suffix='star_positions.fits'
+  --star_catalogues_path='/Users/torluca/Desktop/test/star_catalogues/' --psf_image_size=100
+  --pixel_scale=0.060 --function=all --n_cores=3
+
+# This script allows to create PSF images.
+# Indices in tasks should be in the range '0 > number_of_target_fields'.
+# --function can be main, check_missing, rerun_missing, all
+# --mode=run-tasks runs in parallel using multiprocessing, --mode=run-mpi using MPI, --mode=run runs serially
+# --mode=jobarray runs using the HPC scheduler
+- name: create_psf_images
+  cmd: esub main_create_psf_images_per_target_field.py --mode=run-tasks --tasks='0>3'
+  --h5pytable_folder='/Users/torluca/Desktop/test/h5table' --h5pytable_prefix='table_psf_creation'
+  --temp_dir_path='/Users/torluca/Desktop/test' --image_archive_prefix='images_for_psf'
+  --resources_archive_prefix='res_psf_files' --local_or_cluster='local' --psf_methods='moffat,observed,pca,effective'
+  -star_catalogue_x_keyword='x' --star_catalogue_y_keyword='y' --function=all --n_cores=3
+
+############################################################
+####        Run GALFIT on stamps
+############################################################
+
+# This script allows to create a table for GALFIT run on stamps. --tasks should always be set to '0'.
+# --function can be main, check_missing, rerun_missing, all
+# --mode=run runs serially
+- name: create_galfit_stamps_table
+  cmd: esub create_table_for_galfit_stamps.py --mode=run --tasks='0' --root_path='/Users/torluca/Desktop/test/'
+  --h5pytable_folder='/Users/torluca/Desktop/test/h5table' --h5pytable_filename='table_galfit_on_stamps_run.h5'
+  --telescope_name='HST' --target_field_names='abells1063,macs0416,macs1149'
+  --wavebands_list='f435w,f606w,f814w,f105w,f125w,f140w,f160w'
+  --psf_image_types_list='moffat_psf,observed_psf,pca_psf,effective_psf'
+  --sigma_image_types_list='custom_sigma_image,internal_generated_sigma_image'
+  --background_estimate_methods_list='background_free_fit,background_fixed_value' --enlarging_image_factor=20
+  --enlarging_separation_factor=10 --pixel_scale=0.060 --convolution_box_size=256
+  --galfit_binary_file='/Users/torluca/galfit' --target_galaxies_catalogue_suffix='multiband_target.forced.cat'
+  --target_galaxies_id_key='NUMBER' --source_galaxies_catalogue_suffix='multiband_sources.forced.cat'
+  --parameters_table_suffix='param_table.fits' --sci_images_suffix='drz.fits' --rms_images_suffix='rms.fits'
+  --exp_images_suffix='exp' --seg_images_suffix='forced_seg.fits' --function=all --n_cores=1
+
+# This script allows to run GALFIT on stamps.
+# Indices in tasks should be in the range 0 and the number of total
+# combinations of psf images, sigma images, background estimation methods, wavebands, target galaxies and
+# target clusters.
+# --function can be main, check_missing, rerun_missing, all
+# --mode=run-tasks runs in parallel using multiprocessing, --mode=run-mpi using MPI, --mode=run runs serially
+# --mode=jobarray runs using the HPC scheduler
+- name: run_galfit_stamps
+  cmd: esub main_galfit_stamps.py --mode=run-tasks --tasks='0>10000'
+    --h5pytable_folder='/Users/torluca/Desktop/test/h5table' --h5pytable_filename='table_galfit_on_stamps_run.h5'
+    --temp_dir_path='/Users/torluca/Desktop/test' --files_archive_prefix='galfit_res'
+    --target_galaxies_keys='NUMBER,XWIN_IMAGE_f814w,YWIN_IMAGE_f814w,ALPHAWIN_J2000_f814w,DELTAWIN_J2000_f814w,MAG_AUTO,FLUX_RADIUS,FLUX_RADIUS_f814w,SERSIC_INDEX,BWIN_IMAGE,AWIN_IMAGE,THETAWIN_SKY,TOFIT,COMPONENT_NUMBER,LIGHT_PROFILE'
+    --source_galaxies_keys='NUMBER,ALPHAWIN_J2000_f814w,DELTAWIN_J2000_f814w,MAG_AUTO,FLUX_RADIUS,SERSIC_INDEX,BWIN_IMAGE,AWIN_IMAGE,THETAWIN_SKY,TOFIT,COMPONENT_NUMBER,LIGHT_PROFILE'
+    --display_type_galfit='regular' --galfit_options='0' --diagnostic_plots='True'
+    --phot_apertures='3,5,8,10,13,15,18,20,23,25,28,30' --local_or_cluster='local' --function=all --n_cores=10000
+
+############################################################
+####        Create master catalogue for GALFIT on stamps
+############################################################
+
+# This script allows to create a table for the master catalogue creation.
+# --tasks should always be set to '0'.
+# --function can be main, check_missing, rerun_missing, all
+# --mode=run runs serially
+- name: create_master_table_galfit_stamps
+  cmd: esub create_table_for_masterstamps.py --mode=run --tasks='0' --root_path='/Users/torluca/Desktop/test/'
+  --h5pytable_folder='/Users/torluca/Desktop/test/h5table' --h5pytable_filename='table_masterstamps.h5'
+  --telescope_name='HST' --target_field_names='abells1063,macs0416,macs1149'
+  --wavebands_list='f435w,f606w,f814w,f105w,f125w,f140w,f160w'
+  --psf_image_types_list='moffat_psf,observed_psf,pca_psf,effective_psf'
+  --sigma_image_types_list='custom_sigma_image,internal_generated_sigma_image'
+  --background_estimate_methods_list='background_free_fit,background_fixed_value'
+  --target_galaxies_catalogue_suffix='multiband_target.forced.cat'
+  --source_galaxies_catalogue_suffix='multiband_sources.forced.cat'
+  --function=all --n_cores=1
+
+# This script allows to create the master catalogue for the GALFIT run on stamps.
+#  Indices in tasks should be in the range '0 > number_of_target_fields'.
+# --function can be main, check_missing, rerun_missing, all
+# --mode=run-tasks runs in parallel using multiprocessing, --mode=run-mpi using MPI, --mode=run runs serially
+# --mode=jobarray runs using the HPC scheduler
+- name: master_catalogue_creation
+  cmd: esub main_create_masterstamps_catalogue.py --mode=run-tasks --tasks='0>3'
+    --h5pytable_folder='/Users/torluca/Desktop/test/h5table' --h5pytable_filename='table_masterstamps.h5'
+    --temp_dir_path='/Users/torluca/Desktop/test' --galfit_properties_mastertable_suffix='mastertable.fits'
+    --source_galaxies_catalogue_id_key='NUMBER' --galaxy_ids_key='NUMBER'
+    --light_profiles_key='LIGHT_PROFILE' --galaxy_components_key='COMPONENT_NUMBER'
+    --local_or_cluster='local' --function=all --n_cores=3
+
+############################################################
+####        Create regions
+############################################################
+
+# This script allows to create the parameters table to cut regions from the full image.
+#  Indices in tasks should be in the range '0 > number_of_target_fields'.
+# --function can be main, check_missing, rerun_missing, all
+# --mode=run-tasks runs in parallel using multiprocessing, --mode=run-mpi using MPI, --mode=run runs serially
+# --mode=jobarray runs using the HPC scheduler
+- name: create_table_for_region_creation
+  cmd: esub create_table_for_region_creation.py --mode='run-tasks'
+  --tasks='0>3' --root_path='/Users/torluca/Desktop/test' --h5pytable_folder='/Users/torluca/Desktop/test/h5table/'
+  --h5pytable_prefix='table_region_creation' --target_field_names='abells1063,macs0416,macs1149'
+  --wavebands_list='f435w,f606w,f814w,f105w,f125w,f140w,f160w' --sci_images_suffix='drz.fits'
+  --rms_images_suffix='rms.fits' --exp_images_suffix='exp.fits' --seg_images_suffix='forced_seg.fits'
+  --image_archive_prefix='imagesregcreation' --number_of_regions_per_side=3 --region_image_suffix='reg'
+  --function=all --n_cores=3
+
+# This script allows to create regions from the full image.
+# Indices in tasks should be in the range '0 > number_of_target_fields'.
+# --function can be main, check_missing, rerun_missing, all
+# --mode=run-tasks runs in parallel using multiprocessing, --mode=run-mpi using MPI, --mode=run runs serially
+# --mode=jobarray runs using the HPC scheduler
+- name: create_regions
+  cmd: esub main_create_regions.py --mode=run-tasks --tasks='0>3'
+  --h5pytable_folder='/Users/torluca/Desktop/test/h5table/' --h5pytable_prefix='table_region_creation'
+  --temp_dir_path='/Users/torluca/Desktop/test' --image_archive_prefix='imagesregcreation'
+  --crop_fullimages_first='True'
+  --external_catalogue_filenames='HST_abells1063_multiband_target.forced.cat,HST_macs1149_multiband_target.forced.cat'
+  --crop_suffix='muse.fits' --x_pixel_keyword='XWIN_IMAGE_f814w' --y_pixel_keyword='YWIN_IMAGE_f814w'
+  --local_or_cluster='local' --function=all --n_cores=3
+
+############################################################
+####        Run GALFIT on regions
+############################################################
+
+# This script allows to create a table for GALFIT run on regions. --tasks should always be set to '0'.
+# --function can be main, check_missing, rerun_missing, all
+# --mode=run runs serially
+- name: create_galfit_regions_table
+  cmd: esub create_table_for_galfit_regions.py --mode=run-tasks --tasks='0'
+  --root_path='/Users/torluca/Desktop/test/' --h5pytable_folder='/Users/torluca/Desktop/test/h5table'
+  --h5pytable_filename='table_galfit_on_regions_run.h5' --telescope_name='HST'
+  --target_field_names='abells1063,macs0416,macs1149' --wavebands_list='f435w,f606w,f814w,f105w,f125w,f140w,f160w'
+  --psf_image_types_list='moffat_psf,observed_psf'
+  --sigma_image_types_list='custom_sigma_image,internal_generated_sigma_image'
+  --background_estimate_methods_list='background_free_fit,background_fixed_value'
+  --number_of_regions_per_side=3 --pixel_scale=0.060 --convolution_box_size=256
+  --galfit_binary_file='/Users/torluca/galfit' --parameters_table_suffix='param_table.fits'
+  --sci_images_suffix='drz' --rms_images_suffix='rms' --exp_images_suffix='exp'
+  --sextractor_forced_catalogue_suffix='forced' --source_galaxies_catalogue_suffix='stamps.cat'
+  --function=all --n_cores=1
+
+# This script allows to run GALFIT on regions.
+# Indices in tasks should be in the range 0 and the number of total
+# combinations of psf images, sigma images, background estimation methods, wavebands, target galaxies and
+# target clusters.
+# --function can be main, check_missing, rerun_missing, all
+# --mode=run-tasks runs in parallel using multiprocessing, --mode=run-mpi using MPI, --mode=run runs serially
+# --mode=jobarray runs using the HPC scheduler
+- name: run_galfit_regions
+  cmd: esub main_galfit_regions.py --mode=run-tasks --tasks='0>10000'
+    --h5pytable_folder='/Users/torluca/Desktop/test/h5table' --h5pytable_filename='table_galfit_on_stamps_run.h5'
+    --temp_dir_path='/Users/torluca/Desktop/test' --files_archive_prefix='galfit_res'
+    --source_galaxies_keys=NUMBER,ALPHAWIN_J2000_f814w,DELTAWIN_J2000_f814w,MAG_GALFIT,RE_GALFIT,N_GALFIT,AR_GALFIT,AR_GALFIT,PA_GALFIT,TOFIT,COMPONENT_NUMBER,LIGHT_PROFILE
+    --source_galaxies_reference_waveband='f814w --display_type_galfit='regular' --galfit_options='0'
+    --diagnostic_plots='True' --phot_apertures='3,5,8,10,13,15,18,20,23,25,28,30' --local_or_cluster='local'
+    --function=all --n_cores=10000
+
+############################################################
+####        Create master catalogue for GALFIT on regions
+############################################################
+
+# This script allows to create a table for the master catalogue creation.
+# --tasks should always be set to '0'.
+# --function can be main, check_missing, rerun_missing, all
+# --mode=run runs serially
+- name: create_master_table_galfit_regions
+  cmd: esub create_table_for_masterregions.py --mode=run --tasks='0' --root_path='/Users/torluca/Desktop/test/'
+  --h5pytable_folder='/Users/torluca/Desktop/test/h5table' --h5pytable_filename='table_masterregions.h5'
+  --telescope_name='HST' --target_field_names='abells1063,macs0416,macs1149'
+  --wavebands_list='f435w,f606w,f814w,f105w,f125w,f140w,f160w'
+  --psf_image_types_list='moffat_psf,observed_psf'
+  --sigma_image_types_list='custom_sigma_image,internal_generated_sigma_image'
+  --background_estimate_methods_list='background_free_fit,background_fixed_value'
+  --number_of_regions_per_side=2 --source_galaxies_catalogue_suffix='multiband_sources.forced.cat'
+  --function=all --n_cores=1
+
+# This script allows to create the master catalogue for the GALFIT run on regions.
+#  Indices in tasks should be in the range '0 > number_of_target_fields'.
+# --function can be main, check_missing, rerun_missing, all
+# --mode=run-tasks runs in parallel using multiprocessing, --mode=run-mpi using MPI, --mode=run runs serially
+# --mode=jobarray runs using the HPC scheduler
+- name: master_catalogue_creation
+  cmd: esub main_create_masterregions_catalogue.py --mode=run-tasks --tasks='0>3'
+  --h5pytable_folder='/Users/torluca/Desktop/test/h5table' --h5pytable_filename='table_masterregions.h5'
+  --temp_dir_path='/Users/torluca/Desktop/test' --galfit_properties_mastertable_suffix='mastertable.fits'
+  --source_galaxies_catalogue_id_key='NUMBER' --galaxy_ids_key='NUMBER'
+  --light_profiles_key='LIGHT_PROFILE' --galaxy_components_key='COMPONENT_NUMBER'
+  --local_or_cluster='local' --function=all --n_cores=3
+
+############################################################
+####        Run GALFIT on full image
+############################################################
+
+# This script allows to create a table for GALFIT run on full images. --tasks should always be set to '0'.
+# --function can be main, check_missing, rerun_missing, all
+# --mode=run runs serially
+- name: create_galfit_fullimages_table
+  cmd: esub create_table_for_galfit_fullimages.py --mode=run-tasks --tasks='0' --root_path='/Users/torluca/Desktop/test/'
+    --h5pytable_folder='/Users/torluca/Desktop/test/h5table' --h5pytable_filename='table_galfit_on_fullimages_run.h5'
+    --telescope_name='HST' --target_field_names='abells1063,macs0416,macs1149'
+    --wavebands_list='f435w,f606w,f814w,f105w,f125w,f140w,f160w' --psf_image_types_list='moffat_psf,observed_psf'
+    --sigma_image_types_list='custom_sigma_image,internal_generated_sigma_image'
+    --background_estimate_methods_list='background_free_fit,background_fixed_value' --pixel_scale=0.060
+    --convolution_box_size=256 --galfit_binary_file='/Users/torluca/galfit' --parameters_table_suffix='param_table.fits'
+    --sci_images_suffix='drz.fits' --rms_images_suffix='rms.fits' --exp_images_suffix='exp.fits'
+    --seg_images_suffix='force_seg.fits' --source_galaxies_catalogue_suffix='regions.cat'
+    --function=all --n_cores=1
+
+# This script allows to run GALFIT on full image.
+# Indices in tasks should be in the range 0 and the number of total
+# combinations of psf images, sigma images, background estimation methods, wavebands, and target clusters.
+# --function can be main, check_missing, rerun_missing, all
+# --mode=run-tasks runs in parallel using multiprocessing, --mode=run-mpi using MPI, --mode=run runs serially
+# --mode=jobarray runs using the HPC scheduler
+- name: run_galfit_fullimages
+  cmd: esub main_galfit_fullimages.py --mode=run-tasks --tasks='0>336'
+  --h5pytable_folder='/Users/torluca/Desktop/test/h5table' --h5pytable_filename='table_galfit_on_fullimages_run.h5'
+  --temp_dir_path='/Users/torluca/Desktop/test' --files_archive_prefix='galfit_res'
+  --source_galaxies_keys='NUMBER,ALPHAWIN_J2000,DELTAWIN_J2000,MAG_GALFIT,RE_GALFIT,N_GALFIT,AR_GALFIT,AR_GALFIT,PA_GALFIT,TOFIT,COMPONENT_NUMBER,LIGHT_PROFILE'
+  --source_galaxies_reference_waveband='f814w' --display_type_galfit='regular' --galfit_options='0'
+  --diagnostic_plots='True' --phot_apertures='3,5,8,10,13,15,18,20,23,25,28,30' --local_or_cluster='local'
+  --function=all --n_cores=1
+
+############################################################
+####        Create master catalogue for GALFIT on full image
+############################################################
+
+# This script allows to create a table for the master catalogue creation.
+# --tasks should always be set to '0'.
+# --function can be main, check_missing, rerun_missing, all
+# --mode=run runs serially
+- name: create_master_table_galfit_fullimages
+  cmd: esub create_table_for_masterfullimages.py --mode=run --tasks='0' --root_path='/Users/torluca/Desktop/test/'
+  --h5pytable_folder='/Users/torluca/Desktop/test/h5table' --h5pytable_filename='table_masterfullimages.h5'
+  --telescope_name='HST' --target_field_names='abells1063,macs0416,macs1149'
+  --wavebands_list='f435w,f606w,f814w,f105w,f125w,f140w,f160w'
+  --psf_image_types_list='moffat_psf,observed_psf'
+  --sigma_image_types_list='custom_sigma_image,internal_generated_sigma_image'
+  --background_estimate_methods_list='background_free_fit,background_fixed_value'
+  --source_galaxies_catalogue_suffix='multiband_sources.forced.cat' --function=all --n_cores=1
+
+# This script allows to create the master catalogue for the GALFIT run on full image.
+#  Indices in tasks should be in the range '0 > number_of_target_fields'.
+# --function can be main, check_missing, rerun_missing, all
+# --mode=run-tasks runs in parallel using multiprocessing, --mode=run-mpi using MPI, --mode=run runs serially
+# --mode=jobarray runs using the HPC scheduler
+- name: master_catalogue_creation
+  cmd: esub main_create_masterfullimages_catalogue.py --mode=run-tasks --tasks='0>3'
+  --h5pytable_folder='/Users/torluca/Desktop/test/h5table' --h5pytable_filename='table_masterfullimages.h5'
+  --temp_dir_path='/Users/torluca/Desktop/test' --galfit_properties_mastertable_suffix='mastertable.fits'
+  --source_galaxies_catalogue_id_key='NUMBER' --galaxy_ids_key='NUMBER'
+  --light_profiles_key='LIGHT_PROFILE' --galaxy_components_key='COMPONENT_NUMBER'
+  --local_or_cluster='local' --function=all --n_cores=3
