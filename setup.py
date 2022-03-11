@@ -37,7 +37,7 @@ setup(
     author_email="Luca.Tortorelli@physik.lmu.de",
     url="https://github.com/torluca/morphofit",
     download_url="https://github.com/torluca/morphofit/archive/refs/tags/v1.0.0-beta.tar.gz",
-    packages=find_packages(include=["morphofit"]),
+    packages=find_packages(include=["morphofit", "morphofit.*"], exclude=["morphofit.egg-info"]),
     include_package_data=True,
     install_requires=requirements,
     license="MIT License",
