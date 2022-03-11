@@ -15,6 +15,7 @@ Copyright
 ---------
 
 Copyright (C) 2019, 2020 Luca Tortorelli, ETH Zurich, Institute for Particle Physics and Astrophysics
+
 Copyright (C) 2021, 2022 University Observatory, Ludwig-Maximilians-Universitaet Muenchen
 
 Features
@@ -29,3 +30,8 @@ Features
 * GALFIT run on galaxy regions from the parent image.
 
 * GALFIT run on galaxies from the full image.
+
+Installation
+--------
+
+pip install morphofit
