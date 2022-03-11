@@ -2,8 +2,9 @@
 morphofit
 =============================
 
-A Python morphological analysis package of galaxies with GALFIT
+A Python package for the morphological analysis of galaxies using GALFIT (Peng et al. 2002, 2010).
 
+When using this code, please cite Tortorelli et al 2018, 2022, in prep and Peng et al. 2002, 2010.
 
 Author
 --------
@@ -37,3 +38,8 @@ Installation
 Install via `pip`:
 
     pip install morphofit
+
+Acknowledgements
+--------
+
+The author is grateful to Chien Y. Peng for the development of GALFIT.
