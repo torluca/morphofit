@@ -44,7 +44,7 @@ setup(
     zip_safe=False,
     keywords=["morphofit", "morphology", "galfit"],
     classifiers=[
-        "Development Status :: 2 - Beta",
+        "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
