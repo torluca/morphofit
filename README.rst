@@ -1,7 +1,6 @@
 =============================
-# [morphofit](https://github.com/torluca/morphofit/tree/master)
+morphofit
 =============================
-[![PyPi]](https://pypi.org/project/morphofit/)
 
 A Python morphological analysis package of galaxies with GALFIT
 
@@ -34,6 +33,7 @@ Features
 
 Installation
 --------
+
 Install via `pip`:
 
     pip install morphofit
