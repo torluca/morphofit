@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="4eb487c0-7bc9-4738-b4b1-924a0939fdce" name="Default Changelist" comment="" />
+    <list default="true" id="4eb487c0-7bc9-4738-b4b1-924a0939fdce" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/morphofit.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/morphofit.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/morphofit.egg-info/PKG-INFO" beforeDir="false" afterPath="$PROJECT_DIR$/morphofit.egg-info/PKG-INFO" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/morphofit.egg-info/SOURCES.txt" beforeDir="false" afterPath="$PROJECT_DIR$/morphofit.egg-info/SOURCES.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements_dev.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements_dev.txt" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -26,12 +33,10 @@
     </file-type-list>
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/morphofit/deprecated_functions_scripts/pipeline_deprecated.yaml" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/../legacy_abc/legacy_abc/joint_survey_analysis/utils_joint_survey_abc_run.py" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/../legacy_abc/legacy_abc/joint_survey_analysis/apps/run_cat_comb_joint_survey_abc_deprecated.py" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/morphofit/utils.py" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/morphofit/deprecated_functions.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/morphofit/deprecated_functions_scripts/pipeline_deprecated.yaml" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/morphofit/catalogue_managing.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/morphofit/deprecated_functions.py" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="JupyterTrust" id="6359342b-4bf5-483b-b70c-5aabd0078523" />
   <component name="MarkdownSettingsMigration">
@@ -52,7 +57,7 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="org.jetbrains.plugins.github.ui.GithubSettingsConfigurable" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="ReaderModeSettings">
     <option name="enabled" value="false" />
@@ -142,6 +147,10 @@
       <workItem from="1643628262919" duration="62727000" />
       <workItem from="1645541939268" duration="27000" />
       <workItem from="1645806332844" duration="11500000" />
+      <workItem from="1646146190379" duration="444000" />
+      <workItem from="1646407255692" duration="233000" />
+      <workItem from="1646734044388" duration="1312000" />
+      <workItem from="1646735597559" duration="2134000" />
     </task>
     <servers />
   </component>

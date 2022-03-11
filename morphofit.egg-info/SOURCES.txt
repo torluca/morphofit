@@ -8,10 +8,12 @@ setup.py
 morphofit/__init__.py
 morphofit/background_estimation.py
 morphofit/catalogue_managing.py
-morphofit/morphofit.py
+morphofit/deprecated_functions.py
+morphofit/galfit_stamps_utils.py
 morphofit/galfit_utils.py
 morphofit/image_utils.py
-morphofit/jobchainer.py
+morphofit/morphofit.py
+morphofit/plot_utils.py
 morphofit/psf_estimation.py
 morphofit/run_sextractor.py
 morphofit/utils.py
@@ -19,4 +21,5 @@ morphofit.egg-info/PKG-INFO
 morphofit.egg-info/SOURCES.txt
 morphofit.egg-info/dependency_links.txt
 morphofit.egg-info/not-zip-safe
+morphofit.egg-info/requires.txt
 morphofit.egg-info/top_level.txt
