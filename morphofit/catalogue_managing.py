@@ -643,7 +643,7 @@ def add_dictionary_item(best_fit_properties_h5table_filename, target_name, waveb
                                'fullimage': add_group_values_to_dictionary_fullimage}
 
     add_dictionary_function = add_dictionary_switcher.get(kind, lambda: 'Not implemented...')
-    add_dictionary_function(target_name, waveband, index,psf_image_type, sigma_image_type,background_estimate_method,
+    add_dictionary_function(target_name, waveband, index, psf_image_type, sigma_image_type, background_estimate_method,
                             group, x_dictionary, y_dictionary, ra_dictionary, dec_dictionary, mag_dictionary,
                             re_dictionary, n_dictionary, ar_dictionary, pa_dictionary, background_value_dictionary,
                             background_x_gradient_dictionary, background_y_gradient_dictionary,
@@ -1088,19 +1088,19 @@ def append_ra_dec_properties(ral, decl, ra_dictionary, dec_dictionary, target_na
     return ral, decl
 
 
-def compute_weighted_statistic(property, property_errors):
+def compute_weighted_statistic(galaxy_property, galaxy_property_errors):
     """
 
-    :param property:
-    :param property_errors:
+    :param galaxy_property:
+    :param galaxy_property_errors:
     :return:
     """
 
-    w = (np.isnan(property)) | (np.isnan(property_errors) | (np.array(property_errors) == 0))
-    property = np.array(property)[~w]
-    property_errors = np.array(property_errors)[~w]
-    weights = [1 / property_error ** 2 for property_error in property_errors]
-    weighted_stats = DescrStatsW(property, weights=weights, ddof=0)
+    w = (np.isnan(galaxy_property)) | (np.isnan(galaxy_property_errors) | (np.array(galaxy_property_errors) == 0))
+    galaxy_property = np.array(galaxy_property)[~w]
+    galaxy_property_errors = np.array(galaxy_property_errors)[~w]
+    weights = [1 / galaxy_property_error ** 2 for galaxy_property_error in galaxy_property_errors]
+    weighted_stats = DescrStatsW(galaxy_property, weights=weights, ddof=0)
     mean = weighted_stats.mean
     # std = weighted_stats.std
     std = weighted_stats.std_mean
@@ -1108,52 +1108,52 @@ def compute_weighted_statistic(property, property_errors):
     return mean, std
 
 
-def compute_outrej_statistic(property, property_errors):
+def compute_outrej_statistic(galaxy_property, galaxy_property_errors):
     """
 
-    :param property:
-    :param property_errors:
+    :param galaxy_property:
+    :param galaxy_property_errors:
     :return:
     """
 
-    w = (np.isnan(property)) | (np.isnan(property_errors) | (np.array(property_errors) == 0))
-    property = np.array(property)[~w]
-    property_errors = np.array(property_errors)[~w]
-    weights = [1 / property_error ** 2 for property_error in property_errors]
-    weighted_stats = DescrStatsW(property, weights=weights, ddof=0)
+    w = (np.isnan(galaxy_property)) | (np.isnan(galaxy_property_errors) | (np.array(galaxy_property_errors) == 0))
+    galaxy_property = np.array(galaxy_property)[~w]
+    galaxy_property_errors = np.array(galaxy_property_errors)[~w]
+    weights = [1 / galaxy_property_error ** 2 for galaxy_property_error in galaxy_property_errors]
+    weighted_stats = DescrStatsW(galaxy_property, weights=weights, ddof=0)
     mean = weighted_stats.mean
     std = weighted_stats.std
-    z_score = np.abs(property - mean) / std
-    outlier_rejected_property = property[z_score < 1]
-    # median_value = np.median(outlier_rejected_property)
-    std = np.std(outlier_rejected_property)
+    z_score = np.abs(galaxy_property - mean) / std
+    outlier_rejected_galaxy_property = galaxy_property[z_score < 1]
+    # median_value = np.median(outlier_rejected_galaxy_property)
+    std = np.std(outlier_rejected_galaxy_property)
 
     return mean, std
 
 
-def compute_statistic(property, property_errors):
+def compute_statistic(galaxy_property, galaxy_property_errors):
     """
 
-    :param property:
-    :param property_errors:
+    :param galaxy_property:
+    :param galaxy_property_errors:
     :return:
     """
 
-    w = (np.isnan(property)) | (np.isnan(property_errors) | (np.array(property_errors) == 0))
+    w = (np.isnan(galaxy_property)) | (np.isnan(galaxy_property_errors) | (np.array(galaxy_property_errors) == 0))
 
     if np.all(w):
-        w = np.isnan(property)
-        property_nonans = np.array(property)[~w]
-        mean = np.median(property_nonans)
+        w = np.isnan(galaxy_property)
+        galaxy_property_nonans = np.array(galaxy_property)[~w]
+        mean = np.median(galaxy_property_nonans)
         std = 0.1
 
     else:
-        property_nonans = np.array(property)[~w]
-        property_nonans_errors = np.array(property_errors)[~w]
+        galaxy_property_nonans = np.array(galaxy_property)[~w]
+        galaxy_property_nonans_errors = np.array(galaxy_property_errors)[~w]
 
-        if len(property_nonans) == 1:
-            mean = property_nonans[0]
-            std = property_nonans_errors[0]
+        if len(galaxy_property_nonans) == 1:
+            mean = galaxy_property_nonans[0]
+            std = galaxy_property_nonans_errors[0]
 
         else:
             # change with formula in https://en.wikipedia.org/wiki/Reduced_chi-squared_statistic
@@ -1163,10 +1163,10 @@ def compute_statistic(property, property_errors):
             #                                                     property_nonans_errors ** 2)
             # std = np.sqrt(stand_err ** 2 * chi_square)
 
-            weights = 1 / (property_nonans_errors ** 2)
-            mean = sum(property_nonans * weights) / sum(weights)
+            weights = 1 / (galaxy_property_nonans_errors ** 2)
+            mean = sum(galaxy_property_nonans * weights) / sum(weights)
             unbiased_weighted_estimator_sample_variance = (sum(weights) / (sum(weights)**2 - sum(weights**2))) * \
-                (sum(weights * (property_nonans - mean)**2))
+                (sum(weights * (galaxy_property_nonans - mean)**2))
             std = np.sqrt(unbiased_weighted_estimator_sample_variance)
 
     return mean, std
@@ -1198,10 +1198,10 @@ def compute_covariance_measurements(first_property, second_property, property_er
         w = (np.isnan(first_property)) | (np.isnan(second_property))
         first_property = np.array(first_property)[~w]
         second_property = np.array(second_property)[~w]
-        property = np.empty((len(first_property), 2))
-        property[:, 0] = first_property
-        property[:, 1] = second_property
-        weighted_stats = DescrStatsW(property, ddof=0)
+        galaxy_property = np.empty((len(first_property), 2))
+        galaxy_property[:, 0] = first_property
+        galaxy_property[:, 1] = second_property
+        weighted_stats = DescrStatsW(galaxy_property, ddof=0)
 
     cov = weighted_stats.cov[0][1]
 
