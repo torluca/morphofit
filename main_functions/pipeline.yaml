@@ -84,7 +84,7 @@
   --h5pytable_folder='/Users/torluca/Desktop/test/h5table' --h5pytable_prefix='table_psf_creation'
   --temp_dir_path='/Users/torluca/Desktop/test' --image_archive_prefix='images_for_psf'
   --resources_archive_prefix='res_psf_files' --local_or_cluster='local' --psf_methods='moffat,observed,pca,effective'
-  -star_catalogue_x_keyword='x' --star_catalogue_y_keyword='y' --function=all --n_cores=3
+  --star_catalogue_x_keyword='x' --star_catalogue_y_keyword='y' --function=all --n_cores=3
 
 ############################################################
 ####        Run GALFIT on stamps
@@ -105,7 +105,7 @@
   --galfit_binary_file='/Users/torluca/galfit' --target_galaxies_catalogue_suffix='multiband_target.forced.cat'
   --target_galaxies_id_key='NUMBER' --source_galaxies_catalogue_suffix='multiband_sources.forced.cat'
   --parameters_table_suffix='param_table.fits' --sci_images_suffix='drz.fits' --rms_images_suffix='rms.fits'
-  --exp_images_suffix='exp' --seg_images_suffix='forced_seg.fits' --function=all --n_cores=1
+  --exp_images_suffix='exp.fits' --seg_images_suffix='forced_seg.fits' --function=all --n_cores=1
 
 # This script allows to run GALFIT on stamps.
 # Indices in tasks should be in the range 0 and the number of total

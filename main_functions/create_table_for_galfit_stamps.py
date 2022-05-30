@@ -32,7 +32,7 @@ def select_images(path_to_target_field, waveband, image_type):
     :return:
     """
 
-    images = glob.glob(os.path.join(path_to_target_field, '*{}*_{}'.format(waveband, image_type)))
+    images = glob.glob(os.path.join(path_to_target_field, '*{}*{}'.format(waveband, image_type)))
     images = os.path.basename(images[0])
 
     return images

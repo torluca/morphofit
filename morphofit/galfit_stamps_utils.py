@@ -12,7 +12,7 @@ from __future__ import (print_function, division, absolute_import,
 import numpy as np
 
 # morphofit imports
-from morphofit.deprecated_functions_scripts.galfit_utils_deprecated_211213 import fitting_choice
+from morphofit.galfit_utils import fitting_choice
 from morphofit.utils import single_ra_dec_2_xy
 from morphofit.utils import get_logger
 
