@@ -316,8 +316,8 @@ def get_devauc_parameters_from_header(output_model_image_header, index):
                              output_model_image_header['{}_YC'.format(index + 2)].split(' +/- ')[1]]
         total_magnitude = [output_model_image_header['{}_MAG'.format(index + 2)].split(' +/- ')[0],
                            output_model_image_header['{}_MAG'.format(index + 2)].split(' +/- ')[1]]
-        effective_radius = [output_model_image_header['{}_RS'.format(index + 2)].split(' +/- ')[0],
-                            output_model_image_header['{}_RS'.format(index + 2)].split(' +/- ')[1]]
+        effective_radius = [output_model_image_header['{}_RE'.format(index + 2)].split(' +/- ')[0],
+                            output_model_image_header['{}_RE'.format(index + 2)].split(' +/- ')[1]]
         sersic_index = [4.0, 0]
         axis_ratio = [output_model_image_header['{}_AR'.format(index + 2)].split(' +/- ')[0],
                       output_model_image_header['{}_AR'.format(index + 2)].split(' +/- ')[1]]
@@ -329,7 +329,7 @@ def get_devauc_parameters_from_header(output_model_image_header, index):
             source_x_position = [output_model_image_header['{}_XC'.format(index + 2)][1:-1], 0]
             source_y_position = [output_model_image_header['{}_YC'.format(index + 2)][1:-1], 0]
             total_magnitude = [output_model_image_header['{}_MAG'.format(index + 2)][1:-1], 0]
-            effective_radius = [output_model_image_header['{}_RS'.format(index + 2)][1:-1], 0]
+            effective_radius = [output_model_image_header['{}_RE'.format(index + 2)][1:-1], 0]
             sersic_index = [4.0, 0]
             axis_ratio = [output_model_image_header['{}_AR'.format(index + 2)][1:-1], 0]
             position_angle = [output_model_image_header['{}_PA'.format(index + 2)][1:-1], 0]
