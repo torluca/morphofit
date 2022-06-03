@@ -46,10 +46,13 @@ def plot_diagnostic_image(output_folder, image_filename, image, normalisation, c
 
     plt.imshow(image, cmap=color_map, norm=normalisation, origin='lower')
     cbar = plt.colorbar()
-    cbar.set_label('Pixel value', fontsize=10)
-    plt.title(plot_title, fontsize=10)
+    cbar.set_label('Pixel value', fontsize=20)
+    plt.title(plot_title, fontsize=20)
+    plt.xlabel('x [pixel]', fontsize=20)
+    plt.ylabel('y [pixel]', fontsize=20)
     plt.tight_layout()
     plt.savefig(os.path.join(output_folder, image_filename))
+    plt.close()
 
 
 def gaussian_function(x, mu, intensity, sigma):
@@ -67,11 +70,12 @@ def gaussian_function(x, mu, intensity, sigma):
     return line
 
 
-def create_diagnostic_images(output_model_image_path, output_folder, color_map='jet'):
+def create_diagnostic_images(output_model_image_path, output_folder, waveband, color_map='jet'):
     """
 
     :param output_model_image_path:
     :param output_folder:
+    :param waveband:
     :param color_map:
     :return:
     """
@@ -80,21 +84,23 @@ def create_diagnostic_images(output_model_image_path, output_folder, color_map='
     model_image = fits.getdata(output_model_image_path, ext=2)
     residual_image = fits.getdata(output_model_image_path, ext=3)
 
-    normalisation = matplotlib.colors.Normalize(vmin=min(source_image.ravel()), vmax=max(source_image.ravel()))
+    normalisation = matplotlib.colors.Normalize(vmin=(np.mean(source_image.ravel()) - np.std(source_image.ravel())),
+                                                vmax=(np.mean(source_image.ravel()) + np.std(source_image.ravel())))
 
-    plot_diagnostic_image(output_folder, 'target_galaxy_image.pdf',
-                          source_image, normalisation, color_map, 'Original Image')
-    plot_diagnostic_image(output_folder, 'target_galaxy_model.pdf',
-                          model_image, normalisation, color_map, 'Model Image')
-    plot_diagnostic_image(output_folder, 'target_galaxy_residual.pdf',
-                          residual_image, normalisation, color_map, 'Residual Image')
+    plot_diagnostic_image(output_folder, 'target_galaxy_image_{}.pdf'.format(waveband),
+                          source_image, normalisation, color_map, 'Original Image, {}'.format(waveband))
+    plot_diagnostic_image(output_folder, 'target_galaxy_model_{}.pdf'.format(waveband),
+                          model_image, normalisation, color_map, 'Model Image, {}'.format(waveband))
+    plot_diagnostic_image(output_folder, 'target_galaxy_residual_{}.pdf'.format(waveband),
+                          residual_image, normalisation, color_map, 'Residual Image, {}'.format(waveband))
 
 
-def create_diagnostic_pixel_counts_histogram(output_model_image_path, output_folder):
+def create_diagnostic_pixel_counts_histogram(output_model_image_path, output_folder, waveband):
     """
 
     :param output_model_image_path:
     :param output_folder:
+    :param waveband:
     :return:
     """
 
@@ -111,29 +117,31 @@ def create_diagnostic_pixel_counts_histogram(output_model_image_path, output_fol
              histtype='step')
     plt.hist(residual_image.ravel(), bins='auto', color='red', density=True, alpha=0.5, label='Residual Image',
              histtype='step')
-    plt.xlabel('Pixel Values', fontsize=10)
-    plt.ylabel('Number of Pixels', fontsize=10)
+    plt.xlabel('Pixel Values', fontsize=20)
+    plt.ylabel('Number of Pixels', fontsize=20)
     combined = np.concatenate((source_image.ravel(), model_image.ravel(), residual_image.ravel()))
     plt.xlim(np.percentile(combined, 1), np.percentile(combined, 99))
     plt.yscale('log')
-    plt.legend(loc='best', fontsize=10)
-    plt.title('Pixel Count Histogram')
+    plt.legend(loc='best', fontsize=20)
+    plt.title('Pixel Count Histogram, {}'.format(waveband), fontsize=20)
     plt.tight_layout()
-    plt.savefig(os.path.join(output_folder, 'Pixel_count_histogram.pdf'))
+    plt.savefig(os.path.join(output_folder, 'Pixel_count_histogram_{}.pdf'.format(waveband)))
+    plt.close()
 
 
-def create_gaussian_fit_residual_image_counts(output_model_image_path, output_folder):
+def create_gaussian_fit_residual_image_counts(output_model_image_path, output_folder, waveband):
     """
 
     :param output_model_image_path:
     :param output_folder:
+    :param waveband:
     :return:
     """
 
     residual_image = fits.getdata(output_model_image_path, ext=3)
     residual_hist = np.histogram(residual_image.ravel(), bins='auto', density=True)
 
-    p0 = [0, 0, 0.1]
+    p0 = [0, 1, 0.01]
     popt, pcov = curve_fit(gaussian_function, residual_hist[1][:-1], residual_hist[0], p0=p0)
 
     plt.clf()
@@ -148,13 +156,14 @@ def create_gaussian_fit_residual_image_counts(output_model_image_path, output_fo
     plt.vlines(popt[0], ymin=0, ymax=max(gaussian_function(residual_hist[1][:-1], popt[0], popt[1], popt[2])),
                color='red', lw=2, ls='dashed', label='Mean: {:1f}'.format(popt[0]))
 
-    plt.xlabel('Pixel Values', fontsize=10)
-    plt.ylabel('Number of Pixels', fontsize=10)
-    plt.xlim(popt[0] - 10 * popt[2], popt[0] + 10 * popt[2])
-    plt.legend(loc='upper left', fontsize=10)
-    plt.title('Gaussian fit to Residual Image pixel counts', fontsize=10)
+    plt.xlabel('Pixel Values', fontsize=20)
+    plt.ylabel('Number of Pixels', fontsize=20)
+    plt.xlim(popt[0] - 3 * popt[-1], popt[0] + 3 * popt[-1])
+    plt.legend(loc='upper left', fontsize=20)
+    plt.title('Gaussian fit to Residual Image pixel counts, {}'.format(waveband), fontsize=20)
     plt.tight_layout()
-    plt.savefig(os.path.join(output_folder, 'Residual_image_pixel_count_histogram.pdf'))
+    plt.savefig(os.path.join(output_folder, 'Residual_image_pixel_count_histogram_{}.pdf'.format(waveband)))
+    plt.close()
 
 
 def sersic_profile_mag_units(mu_e, kappa, r_arcsec, Re_arcsec, n):
@@ -253,49 +262,122 @@ def create_best_fitting_photometry_comparison(best_fitting_galaxy_catalogue_file
     mag_aper = sextractor_source_properties['MAG_APER_{}'.format(waveband)]
     mag_aper_err = sextractor_source_properties['MAGERR_APER_{}'.format(waveband)]
 
-    for i in range(len(mu_e)):
+    unique_galaxy_ids = list(set(galaxy_id))
+
+    for i in range(len(unique_galaxy_ids)):
+        obj_idxs = np.where(galaxy_id == unique_galaxy_ids[i])
 
         mu_from_mag_aper = np.empty_like(r_aper)
         mu_err_from_mag_aper = np.empty_like(r_aper)
-        mu_from_mag_aper[0] = mag_aper[i, 0] + 2.5 * np.log10(2 * np.pi) + 5 * np.log10(r_aper[0] * pixel_scale)
-        mu_err_from_mag_aper[0] = mag_aper_err[i, 0]
+        mu_from_mag_aper[0] = mag_aper[obj_idxs][0][0] + 2.5 * np.log10(2 * np.pi) + 5 * np.log10(r_aper[0] * pixel_scale)
+        mu_err_from_mag_aper[0] = mag_aper_err[obj_idxs][0][0]
         for j in range(1, len(r_aper)):
-            mu_from_mag_aper[j] = sb_profile_from_sextractor_mag_aper(mag_aper[i, j - 1],
-                                                                      mag_aper[i, j],
+            mu_from_mag_aper[j] = sb_profile_from_sextractor_mag_aper(mag_aper[obj_idxs][0][j - 1],
+                                                                      mag_aper[obj_idxs][0][j],
                                                                       r_aper[j - 1] * pixel_scale,
                                                                       r_aper[j] * pixel_scale)
-            mu_err_from_mag_aper[j] = sb_profile_errors_from_sextractor_mag_aper(mag_aper[i, j],
-                                                                                 mag_aper[i, j - 1],
-                                                                                 mag_aper_err[i, j],
-                                                                                 mag_aper_err[i, j - 1])
+            mu_err_from_mag_aper[j] = sb_profile_errors_from_sextractor_mag_aper(mag_aper[obj_idxs][0][j - 1],
+                                                                                 mag_aper[obj_idxs][0][j],
+                                                                                 mag_aper_err[obj_idxs][0][j],
+                                                                                 mag_aper_err[obj_idxs][0][j - 1])
 
         plt.clf()
         plt.rcParams['figure.figsize'] = (10, 8)
         plt.rcParams['xtick.labelsize'] = 15
         plt.rcParams['ytick.labelsize'] = 15
         r_arcsec = np.arange(r_aper[0] * pixel_scale, r_aper[-1] * pixel_scale, 0.01)
-        if light_profile[i] == 'sersic':
-            plt.plot(r_arcsec, sersic_profile_mag_units(mu_e[i], kappa[i], r_arcsec, re[i] * pixel_scale, n[i]),
-                     lw=2,
-                     color='black', label='Best-fitting Sersic profile')
-        elif light_profile[i] == 'devauc':
-            plt.plot(r_arcsec, sersic_profile_mag_units(mu_e[i], 7.669, r_arcsec, re[i] * pixel_scale, 4),
-                     lw=2, color='black', label='Best-fitting de Vaucouleurs profile')
-        elif light_profile[i] == 'expdisk':
-            plt.plot(r_arcsec, sersic_profile_mag_units(mu_e[i], 1.678, r_arcsec, re[i] * pixel_scale, 1),
-                     lw=2, color='black', label='Best-fitting Exponential disk profile')
-        else:
-            raise ValueError
+
+        final_profile = []
+        for k in range(len(galaxy_id[obj_idxs])):
+            if light_profile[obj_idxs][k] == 'sersic':
+                plt.plot(r_arcsec, sersic_profile_mag_units(mu_e[obj_idxs][k], kappa[obj_idxs][k], r_arcsec,
+                                                            re[obj_idxs][k] * pixel_scale, n[obj_idxs][k]),
+                         lw=2, ls='dashed', color='black', label='Best-fitting Sersic profile, component {}'.format(k))
+                final_profile.append(sersic_profile_mag_units(mu_e[obj_idxs][k], kappa[obj_idxs][k], r_arcsec,
+                                                              re[obj_idxs][k] * pixel_scale, n[obj_idxs][k]))
+            elif light_profile[obj_idxs][k] == 'devauc':
+                plt.plot(r_arcsec, sersic_profile_mag_units(mu_e[obj_idxs][k], 7.669, r_arcsec,
+                                                            re[obj_idxs][k] * pixel_scale, 4),
+                         lw=2, ls='dashed', color='black',
+                         label='Best-fitting de Vaucouleurs profile, component {}'.format(k))
+                final_profile.append(sersic_profile_mag_units(mu_e[obj_idxs][k], 7.669, r_arcsec,
+                                                              re[obj_idxs][k] * pixel_scale, 4))
+            elif light_profile[obj_idxs][k] == 'expdisk':
+                plt.plot(r_arcsec, sersic_profile_mag_units(mu_e[obj_idxs][k], 1.678, r_arcsec,
+                                                            re[obj_idxs][k] * pixel_scale, 1),
+                         lw=2, ls='dashed', color='black',
+                         label='Best-fitting Exponential disk profile, component {}'.format(k))
+                final_profile.append(sersic_profile_mag_units(mu_e[obj_idxs][k], 1.678, r_arcsec,
+                                                            re[obj_idxs][k] * pixel_scale, 1))
+            else:
+                raise ValueError
+
+        if len(galaxy_id[obj_idxs]) > 1:
+            final_profile_fluxes = 10**(np.array(final_profile) / (-2.5))
+            plt.plot(r_arcsec, -2.5 * np.log10(sum(final_profile_fluxes)), lw=2, ls='solid', color='black',
+                     label='Total light profile')
+
         plt.errorbar(r_aper * pixel_scale, mu_from_mag_aper, yerr=mu_err_from_mag_aper,
                      fmt='o', capthick=2, elinewidth=2, mec='black', color='red',
                      label='SExtractor aperture photometry')
-        plt.xlabel('r [arcsec]', fontsize=10)
-        plt.ylabel(r'SB [mag arcsec$^{-2}$]', fontsize=10)
+        plt.xlabel('r [arcsec]', fontsize=20)
+        plt.ylabel(r'SB [mag arcsec$^{-2}$]', fontsize=20)
+        plt.ylim(mu_from_mag_aper[0] - 5, mu_from_mag_aper[-1] + 5)
         plt.gca().invert_yaxis()
         plt.legend(loc='best', fontsize=10)
-        plt.title('Comparison light profile ID:{} with SExtractor photometry'.format(galaxy_id[i]),
-                  fontsize=10)
+        plt.title('Comparison ID:{} {} with aperture photometry'.format(galaxy_id[i], waveband),
+                  fontsize=20)
         plt.tight_layout()
         plt.savefig(os.path.join(output_folder,
-                                 'ID{}_component{}_{}_best_fit_model_vs_sextractor_photometry.pdf'
-                                 .format(galaxy_id[i], component_number[i], waveband)))
+                                 'ID{}_{}_best_fit_model_vs_sextractor_photometry.pdf'
+                                 .format(galaxy_id[i], waveband)))
+        plt.close()
+
+
+    #or i in range(len(mu_e)):
+
+    #   mu_from_mag_aper = np.empty_like(r_aper)
+    #   mu_err_from_mag_aper = np.empty_like(r_aper)
+    #   mu_from_mag_aper[0] = mag_aper[i, 0] + 2.5 * np.log10(2 * np.pi) + 5 * np.log10(r_aper[0] * pixel_scale)
+    #   mu_err_from_mag_aper[0] = mag_aper_err[i, 0]
+    #   for j in range(1, len(r_aper)):
+    #       mu_from_mag_aper[j] = sb_profile_from_sextractor_mag_aper(mag_aper[i, j - 1],
+    #                                                                 mag_aper[i, j],
+    #                                                                 r_aper[j - 1] * pixel_scale,
+    #                                                                 r_aper[j] * pixel_scale)
+    #       mu_err_from_mag_aper[j] = sb_profile_errors_from_sextractor_mag_aper(mag_aper[i, j],
+    #                                                                            mag_aper[i, j - 1],
+    #                                                                            mag_aper_err[i, j],
+    #                                                                            mag_aper_err[i, j - 1])
+
+    #   plt.clf()
+    #   plt.rcParams['figure.figsize'] = (10, 8)
+    #   plt.rcParams['xtick.labelsize'] = 15
+    #   plt.rcParams['ytick.labelsize'] = 15
+    #   r_arcsec = np.arange(r_aper[0] * pixel_scale, r_aper[-1] * pixel_scale, 0.01)
+    #   if light_profile[i] == 'sersic':
+    #       plt.plot(r_arcsec, sersic_profile_mag_units(mu_e[i], kappa[i], r_arcsec, re[i] * pixel_scale, n[i]),
+    #                lw=2,
+    #                color='black', label='Best-fitting Sersic profile')
+    #   elif light_profile[i] == 'devauc':
+    #       plt.plot(r_arcsec, sersic_profile_mag_units(mu_e[i], 7.669, r_arcsec, re[i] * pixel_scale, 4),
+    #                lw=2, color='black', label='Best-fitting de Vaucouleurs profile')
+    #   elif light_profile[i] == 'expdisk':
+    #       plt.plot(r_arcsec, sersic_profile_mag_units(mu_e[i], 1.678, r_arcsec, re[i] * pixel_scale, 1),
+    #                lw=2, color='black', label='Best-fitting Exponential disk profile')
+    #   else:
+    #       raise ValueError
+    #   plt.errorbar(r_aper * pixel_scale, mu_from_mag_aper, yerr=mu_err_from_mag_aper,
+    #                fmt='o', capthick=2, elinewidth=2, mec='black', color='red',
+    #                label='SExtractor aperture photometry')
+    #   plt.xlabel('r [arcsec]', fontsize=10)
+    #   plt.ylabel(r'SB [mag arcsec$^{-2}$]', fontsize=10)
+    #   plt.ylim(15, 30)
+    #   plt.gca().invert_yaxis()
+    #   plt.legend(loc='best', fontsize=10)
+    #   plt.title('Comparison light profile ID:{} with SExtractor photometry'.format(galaxy_id[i]),
+    #             fontsize=10)
+    #   plt.tight_layout()
+    #   plt.savefig(os.path.join(output_folder,
+    #                            'ID{}_component{}_{}_best_fit_model_vs_sextractor_photometry.pdf'
+    #                            .format(galaxy_id[i], component_number[i], waveband)))

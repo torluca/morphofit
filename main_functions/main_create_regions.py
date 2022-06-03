@@ -78,8 +78,10 @@ def main(indices, args):
                                                          external_catalogue_filenames[index]), format='fits')
             sci_image_filenames, rms_image_filenames, seg_image_filenames, exp_image_filenames = \
                 crop_images(sci_image_filenames, rms_image_filenames, seg_image_filenames, exp_image_filenames,
-                            wavebands, temp_dir, external_catalogue=external_catalogue, crop_suffix=args.crop_suffix,
-                            x_keyword=args.x_pixel_keyword, y_keyword=args.y_pixel_keyword)
+                            wavebands, temp_dir, crop_routine=args.crop_routine, external_catalogue=external_catalogue,
+                            size_range_x=args.size_range_x, size_range_y=args.size_range_x,
+                            crop_suffix=args.crop_suffix, x_keyword=args.x_pixel_keyword,
+                            y_keyword=args.y_pixel_keyword)
             subprocess.run(['cp'] + sci_image_filenames + [root_target_field])
             subprocess.run(['cp'] + rms_image_filenames + [root_target_field])
             subprocess.run(['cp'] + seg_image_filenames + [root_target_field])
@@ -180,6 +182,13 @@ def setup(args):
     parser.add_argument('--external_catalogue_filenames', type=str, action='store', default='external_catalogue.cat',
                         help='Comma-separated list of external catalogue filenames. To be used with '
                              '--crop_fullimages_first=True')
+    parser.add_argument('--crop_routine', type=str, action='store', default='catalogue_based',
+                        help='keyword to choose between catalogue and size based crop, possible values are: '
+                             'catalogue_based, size_based')
+    parser.add_argument('--size_range_x', type=str, action='store', default='',
+                        help='comma-separated pixel coordinates for the size_based crop along the x-axis')
+    parser.add_argument('--size_range_y', type=str, action='store', default='',
+                        help='comma-separated pixel coordinates for the size_based crop along the y-axis')
     parser.add_argument('--crop_suffix', type=str, action='store', default='crop.fits',
                         help='Filename suffix of the cropped image. To be used with --crop_fullimages_first=True')
     parser.add_argument('--x_pixel_keyword', type=str, action='store', default='XWIN_IMAGE_f814w',

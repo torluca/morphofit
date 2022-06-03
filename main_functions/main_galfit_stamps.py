@@ -328,9 +328,9 @@ def main(indices, args):
             logger.info('=============================== plot diagnostics')
             try:
                 source_galaxies_keys = args.source_galaxies_keys.split(',')
-                create_diagnostic_images(output_model_image_filename, output_dir, color_map='jet')
-                create_diagnostic_pixel_counts_histogram(output_model_image_filename, output_dir)
-                create_gaussian_fit_residual_image_counts(output_model_image_filename, output_dir)
+                create_diagnostic_images(output_model_image_filename, output_dir, waveband, color_map='jet')
+                create_diagnostic_pixel_counts_histogram(output_model_image_filename, output_dir, waveband)
+                create_gaussian_fit_residual_image_counts(output_model_image_filename, output_dir, waveband)
                 create_best_fitting_photometry_comparison(best_fit_properties_table_filename,
                                                           source_galaxies_catalogue,
                                                           waveband, pixel_scale, source_galaxies_keys[1],

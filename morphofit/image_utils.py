@@ -377,6 +377,8 @@ def create_sigma_image_for_galfit(telescope_name, sigma_image_filename, sci_imag
                                                                                       exposure_time, instrumental_gain,
                                                                                       magnitude_zeropoint,
                                                                                       background_value)
+    elif sigma_image_type == 'external_sigma_image':
+        logger.info('User-provided sigma image')
     else:
         logger.info('not implemented')
         raise ValueError
@@ -559,10 +561,10 @@ def crop_routine_catalogue_based(sci_image_filename, seg_image_filename, rms_ima
         logger.info('Missing rms image')
 
 
-def crop_images_deprecated(sci_image_filenames, rms_image_filenames, seg_image_filenames, exp_image_filenames,
-                           wavebands, output_directory, crop_routine='size_based', external_catalogue=None,
-                           size_range_x=None, size_range_y=None, crop_suffix='cropped',
-                           x_keyword='XWIN_IMAGE_f814w', y_keyword='YWIN_IMAGE_f814w'):
+def crop_images(sci_image_filenames, rms_image_filenames, seg_image_filenames, exp_image_filenames,
+                wavebands, output_directory, crop_routine='catalogue_based', external_catalogue='',
+                size_range_x='', size_range_y='', crop_suffix='cropped',
+                x_keyword='XWIN_IMAGE_f814w', y_keyword='YWIN_IMAGE_f814w'):
     """
 
     :param sci_image_filenames:
@@ -581,17 +583,17 @@ def crop_images_deprecated(sci_image_filenames, rms_image_filenames, seg_image_f
     :return:
     """
 
-    if external_catalogue is None:
-        external_catalogue = ''
-    if (size_range_x is None) | (size_range_y is None):
-        size_range_x = [0, 1000]
-        size_range_y = [0, 1000]
-
     cropped_sci_image_filenames, cropped_rms_image_filenames = [], []
     cropped_seg_image_filenames, cropped_exp_image_filenames = [], []
 
+    if (size_range_x is '') | (size_range_y is ''):
+        size_range_x = [0, 1000]
+        size_range_y = [0, 1000]
+
     for i in range(len(wavebands)):
         if crop_routine == 'size_based':
+            size_range_x = [int(elem) for elem in size_range_x.split(',')]
+            size_range_y = [int(elem) for elem in size_range_y.split(',')]
             crop_routine_size_based(sci_image_filenames[i], seg_image_filenames[i],
                                     rms_image_filenames[i], exp_image_filenames[i],
                                     size_range_x, size_range_y,
@@ -615,44 +617,6 @@ def crop_images_deprecated(sci_image_filenames, rms_image_filenames, seg_image_f
         else:
             logger.info('Not implemented')
             raise ValueError
-
-    return cropped_sci_image_filenames, cropped_rms_image_filenames, cropped_seg_image_filenames, \
-        cropped_exp_image_filenames
-
-
-def crop_images(sci_image_filenames, rms_image_filenames, seg_image_filenames, exp_image_filenames,
-                wavebands, output_directory, external_catalogue=None, crop_suffix='cropped',
-                x_keyword='XWIN_IMAGE_f814w', y_keyword='YWIN_IMAGE_f814w'):
-    """
-
-    :param sci_image_filenames:
-    :param rms_image_filenames:
-    :param seg_image_filenames:
-    :param exp_image_filenames:
-    :param wavebands:
-    :param output_directory:
-    :param external_catalogue:
-    :param crop_suffix:
-    :param x_keyword:
-    :param y_keyword:
-    :return:
-    """
-
-    cropped_sci_image_filenames, cropped_rms_image_filenames = [], []
-    cropped_seg_image_filenames, cropped_exp_image_filenames = [], []
-
-    for i in range(len(wavebands)):
-        crop_routine_catalogue_based(sci_image_filenames[i],
-                                     seg_image_filenames[i],
-                                     rms_image_filenames[i],
-                                     exp_image_filenames[i],
-                                     external_catalogue, x_keyword,
-                                     y_keyword, crop_suffix,
-                                     output_directory,
-                                     cropped_sci_image_filenames,
-                                     cropped_seg_image_filenames,
-                                     cropped_rms_image_filenames,
-                                     cropped_exp_image_filenames)
 
     return cropped_sci_image_filenames, cropped_rms_image_filenames, cropped_seg_image_filenames, \
         cropped_exp_image_filenames
