@@ -282,8 +282,8 @@ def main(indices, args):
                                                           '_{}'.format(args.source_galaxies_reference_waveband),
                                                           source_galaxies_keys[2] +
                                                           '_{}'.format(args.source_galaxies_reference_waveband),
-                                                          source_galaxies_keys[0], source_galaxies_keys[-2],
-                                                          source_galaxies_keys[-1], args.phot_apertures, output_dir)
+                                                          source_galaxies_keys[0], source_galaxies_keys[-1],
+                                                          args.phot_apertures, output_dir)
             except Exception as e:
                 logger.info(e)
                 pass

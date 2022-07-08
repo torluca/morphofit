@@ -280,8 +280,6 @@ def create_moffat_psf_image_per_target(root_path, target_name, target_star_posit
     :return:
     """
 
-    size = psf_image_size
-
     for name in sci_images:
         idx_name = sci_images.index(name)
         target_stars_table = Table.read(target_star_positions[idx_name], format='fits')
@@ -294,30 +292,30 @@ def create_moffat_psf_image_per_target(root_path, target_name, target_star_posit
         data, head = fits.getdata(name, header=True)
         popts = np.empty((len(x_stars), 6))
         for i in range(len(x_stars)):
-            cutout = create_cutout_image(x_stars[i], y_stars[i], size, data)
+            cutout = create_cutout_image(x_stars[i], y_stars[i], psf_image_size, data)
             back_sub_cutout = subtract_background_from_image(cutout.data, sigma=2)
-            starting_point = [background_noise_amp_initial_guess, 1., int(size / 2), int(size / 2),
-                              seeing_pixel_initial_guess, 3.5]
-            if back_sub_cutout.shape == (size, size):
+            starting_point = [background_noise_amp_initial_guess, 1., int(psf_image_size / 2),
+                              int(psf_image_size / 2), seeing_pixel_initial_guess, 3.5]
+            if back_sub_cutout.shape == (psf_image_size, psf_image_size):
                 try:
-                    popt, fwhm, beta = fit_2d_moffat_profile(back_sub_cutout, starting_point, size)
+                    popt, fwhm, beta = fit_2d_moffat_profile(back_sub_cutout, starting_point, psf_image_size)
                     popts[i, :] = popt
                 except RuntimeError:
                     popts[i, :] = np.full(len(starting_point), np.nan)
             else:
                 continue
-        x_img = np.arange(0, size)
-        y_img = np.arange(0, size)
+        x_img = np.arange(0, psf_image_size)
+        y_img = np.arange(0, psf_image_size)
         x_y = np.meshgrid(x_img, y_img)
         sky = np.nanmedian(popts[:, 0])
         amplt = np.nanmedian(popts[:, 1])
-        x0 = size / 2
-        y0 = size / 2
+        x0 = psf_image_size / 2
+        y0 = psf_image_size / 2
         alpha = np.nanmedian(popts[:, 4])
         beta = np.nanmedian(popts[:, 5])
         moffat_psf = two_dim_moffat_profile(x_y, sky, amplt, x0, y0, alpha, beta)
         moffat_psf = moffat_psf / np.nanmax(moffat_psf)
-        moffat_psf = moffat_psf.reshape((size, size))
+        moffat_psf = moffat_psf.reshape((psf_image_size, psf_image_size))
         fits.writeto(os.path.join(root_path, 'moffat_psf_{}_{}.fits'.format(target_name, wavebands[idx_name])),
                      moffat_psf, head, overwrite=True)
 
@@ -341,8 +339,6 @@ def create_moffat_psf_image(root_path, target_star_positions, target_stars_id_ke
     :return:
     """
 
-    size = psf_image_size
-
     for waveband in wavebands:
         idx_waveband = wavebands.index(waveband)
         psf_cutouts = []
@@ -362,34 +358,34 @@ def create_moffat_psf_image(root_path, target_star_positions, target_stars_id_ke
             seg_data, seg_head = fits.getdata(seg_images[idx_waveband][idx_name], header=True)
             popts = np.empty((len(x_stars), 6))
             for i in range(len(x_stars)):
-                cutout = create_cutout_image(x_stars[i], y_stars[i], size, data)
-                seg_cutout = create_cutout_image(x_stars[i] - 0.5, y_stars[i] - 1.5, size, seg_data)
+                cutout = create_cutout_image(x_stars[i], y_stars[i], psf_image_size, data)
+                seg_cutout = create_cutout_image(x_stars[i] - 0.5, y_stars[i] - 1.5, psf_image_size, seg_data)
                 back_sub_cutout = substitute_sources_with_background(cutout.data, seg_cutout.data, stars_number[i])
                 mean_back, median_back, std_back = estimate_cutout_background(back_sub_cutout, seg_cutout.data,
                                                                               sigma=2)
                 back_sub_cutout = back_sub_cutout - mean_back
-                starting_point = [background_noise_amp_initial_guess, 1., int(size / 2), int(size / 2),
-                                  seeing_pixel_initial_guess, 3.5]
-                if back_sub_cutout.shape == (size, size):
+                starting_point = [background_noise_amp_initial_guess, 1., int(psf_image_size / 2),
+                                  int(psf_image_size / 2), seeing_pixel_initial_guess, 3.5]
+                if back_sub_cutout.shape == (psf_image_size, psf_image_size):
                     try:
-                        popt, fwhm, beta = fit_2d_moffat_profile(back_sub_cutout, starting_point, size)
+                        popt, fwhm, beta = fit_2d_moffat_profile(back_sub_cutout, starting_point, psf_image_size)
                         popts[i, :] = popt
                     except RuntimeError:
                         popts[i, :] = np.full(len(starting_point), np.nan)
                 else:
                     continue
-            x_img = np.arange(0, size)
-            y_img = np.arange(0, size)
+            x_img = np.arange(0, psf_image_size)
+            y_img = np.arange(0, psf_image_size)
             x_y = np.meshgrid(x_img, y_img)
             sky = np.nanmedian(popts[:, 0])
             amplt = np.nanmedian(popts[:, 1])
-            x0 = size / 2
-            y0 = size / 2
+            x0 = psf_image_size / 2
+            y0 = psf_image_size / 2
             alpha = np.nanmedian(popts[:, 4])
             beta = np.nanmedian(popts[:, 5])
             moffat_psf = two_dim_moffat_profile(x_y, sky, amplt, x0, y0, alpha, beta)
             moffat_psf = moffat_psf / np.nanmax(moffat_psf)
-            moffat_psf = moffat_psf.reshape((size, size))
+            moffat_psf = moffat_psf.reshape((psf_image_size, psf_image_size))
             psf_cutouts.append(moffat_psf)
 
         fits.writeto(os.path.join(root_path, 'moffat_psf_{}.fits'.format(waveband)),
@@ -412,18 +408,16 @@ def create_observed_psf_image_per_target(root_path, target_name, target_star_pos
     :return:
     """
 
-    size = psf_image_size
-
     for name in sci_images:
         idx_name = sci_images.index(name)
         target_stars_table = Table.read(target_star_positions[idx_name], format='fits')
         x_stars = target_stars_table[target_stars_x_keyword]
         y_stars = target_stars_table[target_stars_y_keyword]
-        psf_cutout = np.empty((len(x_stars), size, size))
+        psf_cutout = np.empty((len(x_stars), psf_image_size, psf_image_size))
         data, head = fits.getdata(name, header=True)
         for i in range(len(x_stars)):
-            cutout = create_cutout_image(x_stars[i]-0.5, y_stars[i]-1.5, size, data)
-            if (len(cutout.data) == size) & (len(cutout.data[0]) == size):
+            cutout = create_cutout_image(x_stars[i]-0.5, y_stars[i]-1.5, psf_image_size, data)
+            if (len(cutout.data) == psf_image_size) & (len(cutout.data[0]) == psf_image_size):
                 psf_cutout[i] = subtract_background_from_image(cutout.data, sigma=2)
                 psf_cutout[i] = psf_cutout[i] / np.nanmax(psf_cutout[i])
             else:
@@ -451,8 +445,6 @@ def create_observed_psf_image(root_path, target_star_positions, target_stars_id_
     :return:
     """
 
-    size = psf_image_size
-
     for waveband in wavebands:
         idx_waveband = wavebands.index(waveband)
         psf_cutouts = []
@@ -463,14 +455,14 @@ def create_observed_psf_image(root_path, target_star_positions, target_stars_id_
             x_stars = target_stars_table[target_stars_x_keyword]
             y_stars = target_stars_table[target_stars_y_keyword]
             stars_number = target_stars_table[target_stars_id_keyword]
-            psf_cutout = np.empty((len(x_stars), size, size))
+            psf_cutout = np.empty((len(x_stars), psf_image_size, psf_image_size))
             data, head = fits.getdata(name, header=True)
             seg_data, seg_head = fits.getdata(seg_images[idx_waveband][idx_name], header=True)
 
             for i in range(len(x_stars)):
-                cutout = create_cutout_image(x_stars[i] - 0.5, y_stars[i] - 1.5, size, data)
-                seg_cutout = create_cutout_image(x_stars[i] - 0.5, y_stars[i] - 1.5, size, seg_data)
-                if (len(cutout.data) == size) & (len(cutout.data[0]) == size):
+                cutout = create_cutout_image(x_stars[i] - 0.5, y_stars[i] - 1.5, psf_image_size, data)
+                seg_cutout = create_cutout_image(x_stars[i] - 0.5, y_stars[i] - 1.5, psf_image_size, seg_data)
+                if (len(cutout.data) == psf_image_size) & (len(cutout.data[0]) == psf_image_size):
                     psf_cutout[i] = substitute_sources_with_background(cutout.data, seg_cutout.data, stars_number[i])
                     mean_back, median_back, std_back = estimate_cutout_background(psf_cutout[i], seg_cutout.data,
                                                                                   sigma=2)
@@ -503,20 +495,19 @@ def create_pca_psf_image_per_target(root_path, target_name, target_star_position
     """
 
     # per fare la pca le immagini vanno centrate normalizzate e poi mean subtracted
-    size = psf_image_size
-    # principal_components = np.empty((len(wavebands), size ** 2, size, size))
+    # principal_components = np.empty((len(wavebands), psf_image_size ** 2, psf_image_size, psf_image_size))
 
     for name in sci_images:
         idx_name = sci_images.index(name)
         target_stars_table = Table.read(target_star_positions[idx_name], format='fits')
         x_stars = target_stars_table[target_stars_x_keyword]
         y_stars = target_stars_table[target_stars_y_keyword]
-        psf_cutout = np.empty((len(x_stars), size, size))
+        psf_cutout = np.empty((len(x_stars), psf_image_size, psf_image_size))
         data, head = fits.getdata(name, header=True)
-        S = np.empty((len(x_stars), size ** 2))
+        S = np.empty((len(x_stars), psf_image_size ** 2))
         for i in range(len(x_stars)):
-            cutout = create_cutout_image(x_stars[i]-0.5, y_stars[i]-1.5, size, data)
-            if (len(cutout.data) == size) & (len(cutout.data[0]) == size):
+            cutout = create_cutout_image(x_stars[i]-0.5, y_stars[i]-1.5, psf_image_size, data)
+            if (len(cutout.data) == psf_image_size) & (len(cutout.data[0]) == psf_image_size):
                 psf_cutout[i] = subtract_background_from_image(cutout.data, sigma=2)
                 # psf_cutout[i] = psf_cutout[i] / np.nanmax(psf_cutout[i])
                 # psf_cutout_raveled = np.ravel(psf_cutout[i].transpose())
@@ -535,18 +526,20 @@ def create_pca_psf_image_per_target(root_path, target_name, target_star_position
         S_clean = S[goodindices]
         S_clean_mean_sub = S_clean - np.mean(S_clean, axis=0)
         # U, s, VT = linalg.svd(S_clean_mean_sub, full_matrices=True)
-        # principal_components[idx_name, :, :, :] = VT.reshape((size ** 2, size, size))
+        # principal_components[idx_name, :, :, :] = VT.reshape((psf_image_size ** 2, psf_image_size, psf_image_size))
         # pca_star = principal_components[idx_name, 0, :, :]  # + principal_components[idx_band,1,:,:] + ...
         # pca_star = pca_star / np.nanmin(pca_star)
         n_components = min(len(x_stars), 5)
         pca_model = PCA(n_components=n_components)
         pca_model.fit(S_clean_mean_sub)
         pca_pc = pca_model.components_
-        pca_star = np.reshape(pca_pc[0, :], (size, size))  # + np.reshape(pca_pc[1,:],(size, size)) + \
-        #            np.reshape(pca_pc[2,:],(size, size)) + np.reshape(pca_pc[3,:],(size, size)) + \
-        #            np.reshape(pca_pc[4,:],(size, size))
-        head['NAXIS1'] = size
-        head['NAXIS2'] = size
+        pca_star = np.reshape(pca_pc[0, :], (psf_image_size, psf_image_size))
+        # + np.reshape(pca_pc[1,:],(psf_image_size, psf_image_size)) + \
+        #            np.reshape(pca_pc[2,:],(psf_image_size, psf_image_size)) +
+        #            np.reshape(pca_pc[3,:],(psf_image_size, psf_image_size)) + \
+        #            np.reshape(pca_pc[4,:],(psf_image_size, psf_image_size))
+        head['NAXIS1'] = psf_image_size
+        head['NAXIS2'] = psf_image_size
 
         fits.writeto(os.path.join(root_path, 'pca_psf_{}_{}.fits'.format(target_name, wavebands[idx_name])),
                      pca_star, head, overwrite=True)
@@ -569,8 +562,6 @@ def create_pca_psf_image(root_path, target_star_positions, target_stars_id_keywo
     :return:
     """
 
-    size = psf_image_size
-
     for waveband in wavebands:
         idx_waveband = wavebands.index(waveband)
         psf_cutouts = []
@@ -581,14 +572,14 @@ def create_pca_psf_image(root_path, target_star_positions, target_stars_id_keywo
             x_stars = target_stars_table[target_stars_x_keyword]
             y_stars = target_stars_table[target_stars_y_keyword]
             stars_number = target_stars_table[target_stars_id_keyword]
-            psf_cutout = np.empty((len(x_stars), size, size))
+            psf_cutout = np.empty((len(x_stars), psf_image_size, psf_image_size))
             data, head = fits.getdata(name, header=True)
             seg_data, seg_head = fits.getdata(seg_images[idx_waveband][idx_name], header=True)
-            S = np.empty((len(x_stars), size ** 2))
+            S = np.empty((len(x_stars), psf_image_size ** 2))
             for i in range(len(x_stars)):
-                cutout = create_cutout_image(x_stars[i], y_stars[i], size, data)
-                seg_cutout = create_cutout_image(x_stars[i], y_stars[i], size, seg_data)
-                if (len(cutout.data) == size) & (len(cutout.data[0]) == size):
+                cutout = create_cutout_image(x_stars[i], y_stars[i], psf_image_size, data)
+                seg_cutout = create_cutout_image(x_stars[i], y_stars[i], psf_image_size, seg_data)
+                if (len(cutout.data) == psf_image_size) & (len(cutout.data[0]) == psf_image_size):
                     psf_cutout[i] = substitute_sources_with_background(cutout.data, seg_cutout.data, stars_number[i])
                     mean_back, median_back, std_back = estimate_cutout_background(psf_cutout[i], seg_cutout.data,
                                                                                   sigma=2)
@@ -611,7 +602,7 @@ def create_pca_psf_image(root_path, target_star_positions, target_stars_id_keywo
         pca_model = PCA(n_components=1)
         pca_model.fit(S_clean_mean_sub)
         pca_pc = pca_model.components_
-        pca_star = np.reshape(pca_pc[0, :], (size, size))
+        pca_star = np.reshape(pca_pc[0, :], (psf_image_size, psf_image_size))
 
         fits.writeto(os.path.join(root_path, 'pca_psf_{}.fits'.format(waveband)),
                      pca_star, overwrite=True)
@@ -632,8 +623,6 @@ def create_effective_psf_image_per_target(root_path, target_name, target_star_po
     :return:
     """
 
-    size = psf_image_size
-
     for name in sci_images:
         idx_name = sci_images.index(name)
         data, head = fits.getdata(name, header=True)
@@ -643,7 +632,7 @@ def create_effective_psf_image_per_target(root_path, target_name, target_star_po
         stars_tbl = Table()
         stars_tbl['x'] = target_stars_table[target_stars_x_keyword]
         stars_tbl['y'] = target_stars_table[target_stars_y_keyword]
-        stars = extract_stars(nddata, stars_tbl, size=size)
+        stars = extract_stars(nddata, stars_tbl, size=psf_image_size)
 
         epsf_builder = EPSFBuilder(oversampling=2, progress_bar=False,
                                    smoothing_kernel='quadratic',
@@ -655,3 +644,46 @@ def create_effective_psf_image_per_target(root_path, target_name, target_star_po
 
         fits.writeto(os.path.join(root_path, 'effective_psf_{}_{}.fits'.format(target_name, wavebands[idx_name])),
                      epsf.data, head, overwrite=True)
+
+
+def create_psf_image_for_sextractor(root_path, target_name, target_star_positions, target_stars_x_keyword,
+                                    target_stars_y_keyword, sci_images, sextractor_psf_filename,
+                                    psf_image_size, wavebands, fwhms):
+    """
+
+    :param root_path:
+    :param target_name:
+    :param target_star_positions:
+    :param target_stars_x_keyword:
+    :param target_stars_y_keyword:
+    :param sci_images:
+    :param sextractor_psf_filename:
+    :param psf_image_size:
+    :param wavebands:
+    :param fwhms:
+    :return:
+    """
+
+    for name in sci_images:
+        idx_name = sci_images.index(name)
+        target_stars_table = Table.read(target_star_positions[idx_name], format='fits')
+        x_stars = target_stars_table[target_stars_x_keyword]
+        y_stars = target_stars_table[target_stars_y_keyword]
+        psf_cutout = np.empty((len(x_stars), psf_image_size, psf_image_size))
+        data, head = fits.getdata(name, header=True)
+        for i in range(len(x_stars)):
+            cutout = create_cutout_image(x_stars[i] - 0.5, y_stars[i] - 1.5, psf_image_size, data)
+            if (len(cutout.data) == psf_image_size) & (len(cutout.data[0]) == psf_image_size):
+                psf_cutout[i] = subtract_background_from_image(cutout.data, sigma=2)
+                psf_cutout[i] = psf_cutout[i] / np.nanmax(psf_cutout[i])
+            else:
+                continue
+
+        psf_image = np.nanmedian(psf_cutout, axis=0)
+
+        psf_image.reshape((psf_image_size, psf_image_size))
+        psf, head = fits.getdata(sextractor_psf_filename, header=True)
+        head['PSF_FWHM'] = fwhms[wavebands[idx_name]]
+        psf[0][0][0] = psf_image
+        fits.writeto(os.path.join(root_path, 'sextractor_psf_{}_{}.fits'.format(target_name, wavebands[idx_name])),
+                     psf, head, overwrite=True)

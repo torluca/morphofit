@@ -335,8 +335,7 @@ def main(indices, args):
                                                           source_galaxies_catalogue,
                                                           waveband, pixel_scale, source_galaxies_keys[1],
                                                           source_galaxies_keys[2], target_galaxies_keys[0],
-                                                          target_galaxies_keys[-2], target_galaxies_keys[-1],
-                                                          args.phot_apertures, output_dir)
+                                                          target_galaxies_keys[-1], args.phot_apertures, output_dir)
             except FileNotFoundError:
                 pass
 

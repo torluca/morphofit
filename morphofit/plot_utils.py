@@ -27,7 +27,9 @@ from morphofit.utils import get_logger
 logger = get_logger(__file__)
 
 
-def plot_diagnostic_image(output_folder, image_filename, image, normalisation, color_map, plot_title):
+def plot_diagnostic_image(output_folder, image_filename, image, normalisation, color_map, plot_title,
+                          figure_size=(10, 8), xtick_labelsize=15, ytick_labelsize=15,
+                          xlabel_fontsize=20, ylabel_fontsize=20, cbar_fontsize=20, title_fontsize=20):
     """
 
     :param output_folder:
@@ -36,20 +38,27 @@ def plot_diagnostic_image(output_folder, image_filename, image, normalisation, c
     :param normalisation:
     :param color_map:
     :param plot_title:
+    :param figure_size:
+    :param xtick_labelsize:
+    :param ytick_labelsize:
+    :param xlabel_fontsize:
+    :param ylabel_fontsize:
+    :param cbar_fontsize:
+    :param title_fontsize:
     :return:
     """
 
     plt.clf()
-    plt.rcParams['figure.figsize'] = (10, 8)
-    plt.rcParams['xtick.labelsize'] = 15
-    plt.rcParams['ytick.labelsize'] = 15
+    plt.rcParams['figure.figsize'] = figure_size
+    plt.rcParams['xtick.labelsize'] = xtick_labelsize
+    plt.rcParams['ytick.labelsize'] = ytick_labelsize
 
     plt.imshow(image, cmap=color_map, norm=normalisation, origin='lower')
     cbar = plt.colorbar()
-    cbar.set_label('Pixel value', fontsize=20)
-    plt.title(plot_title, fontsize=20)
-    plt.xlabel('x [pixel]', fontsize=20)
-    plt.ylabel('y [pixel]', fontsize=20)
+    cbar.set_label('Pixel value', fontsize=cbar_fontsize)
+    plt.title(plot_title, fontsize=title_fontsize)
+    plt.xlabel('x [pixel]', fontsize=xlabel_fontsize)
+    plt.ylabel('y [pixel]', fontsize=ylabel_fontsize)
     plt.tight_layout()
     plt.savefig(os.path.join(output_folder, image_filename))
     plt.close()
@@ -70,13 +79,22 @@ def gaussian_function(x, mu, intensity, sigma):
     return line
 
 
-def create_diagnostic_images(output_model_image_path, output_folder, waveband, color_map='jet'):
+def create_diagnostic_images(output_model_image_path, output_folder, waveband, color_map='jet',
+                             figure_size=(10, 8), xtick_labelsize=15, ytick_labelsize=15,
+                             xlabel_fontsize=20, ylabel_fontsize=20, cbar_fontsize=20, title_fontsize=20):
     """
 
     :param output_model_image_path:
     :param output_folder:
     :param waveband:
     :param color_map:
+    :param figure_size:
+    :param xtick_labelsize:
+    :param ytick_labelsize:
+    :param xlabel_fontsize:
+    :param ylabel_fontsize:
+    :param cbar_fontsize:
+    :param title_fontsize:
     :return:
     """
 
@@ -88,19 +106,38 @@ def create_diagnostic_images(output_model_image_path, output_folder, waveband, c
                                                 vmax=(np.mean(source_image.ravel()) + np.std(source_image.ravel())))
 
     plot_diagnostic_image(output_folder, 'target_galaxy_image_{}.pdf'.format(waveband),
-                          source_image, normalisation, color_map, 'Original Image, {}'.format(waveband))
+                          source_image, normalisation, color_map, 'Original Image, {}'.format(waveband),
+                          figure_size=figure_size, xtick_labelsize=xtick_labelsize, ytick_labelsize=ytick_labelsize,
+                          xlabel_fontsize=xlabel_fontsize, ylabel_fontsize=ylabel_fontsize, cbar_fontsize=cbar_fontsize,
+                          title_fontsize=title_fontsize)
     plot_diagnostic_image(output_folder, 'target_galaxy_model_{}.pdf'.format(waveband),
-                          model_image, normalisation, color_map, 'Model Image, {}'.format(waveband))
+                          model_image, normalisation, color_map, 'Model Image, {}'.format(waveband),
+                          figure_size=figure_size, xtick_labelsize=xtick_labelsize, ytick_labelsize=ytick_labelsize,
+                          xlabel_fontsize=xlabel_fontsize, ylabel_fontsize=ylabel_fontsize, cbar_fontsize=cbar_fontsize,
+                          title_fontsize=title_fontsize)
     plot_diagnostic_image(output_folder, 'target_galaxy_residual_{}.pdf'.format(waveband),
-                          residual_image, normalisation, color_map, 'Residual Image, {}'.format(waveband))
+                          residual_image, normalisation, color_map, 'Residual Image, {}'.format(waveband),
+                          figure_size=figure_size, xtick_labelsize=xtick_labelsize, ytick_labelsize=ytick_labelsize,
+                          xlabel_fontsize=xlabel_fontsize, ylabel_fontsize=ylabel_fontsize, cbar_fontsize=cbar_fontsize,
+                          title_fontsize=title_fontsize)
 
 
-def create_diagnostic_pixel_counts_histogram(output_model_image_path, output_folder, waveband):
+def create_diagnostic_pixel_counts_histogram(output_model_image_path, output_folder, waveband,
+                                             figure_size=(10, 8), xtick_labelsize=15, ytick_labelsize=15,
+                                             xlabel_fontsize=20, ylabel_fontsize=20, legend_fontsize=20,
+                                             title_fontsize=20):
     """
 
     :param output_model_image_path:
     :param output_folder:
     :param waveband:
+    :param figure_size:
+    :param xtick_labelsize:
+    :param ytick_labelsize:
+    :param xlabel_fontsize:
+    :param ylabel_fontsize:
+    :param legend_fontsize:
+    :param title_fontsize:
     :return:
     """
 
@@ -109,32 +146,42 @@ def create_diagnostic_pixel_counts_histogram(output_model_image_path, output_fol
     residual_image = fits.getdata(output_model_image_path, ext=3)
 
     plt.clf()
-    plt.rcParams['figure.figsize'] = (10, 8)
-    plt.rcParams['xtick.labelsize'] = 15
-    plt.rcParams['ytick.labelsize'] = 15
+    plt.rcParams['figure.figsize'] = figure_size
+    plt.rcParams['xtick.labelsize'] = xtick_labelsize
+    plt.rcParams['ytick.labelsize'] = ytick_labelsize
     plt.hist(source_image.ravel(), bins='auto', color='blue', density=True, label='Original Image', histtype='step')
     plt.hist(model_image.ravel(), bins='auto', color='green', density=True, alpha=0.5, label='Model Image',
              histtype='step')
     plt.hist(residual_image.ravel(), bins='auto', color='red', density=True, alpha=0.5, label='Residual Image',
              histtype='step')
-    plt.xlabel('Pixel Values', fontsize=20)
-    plt.ylabel('Number of Pixels', fontsize=20)
+    plt.xlabel('Pixel Values', fontsize=xlabel_fontsize)
+    plt.ylabel('Number of Pixels', fontsize=ylabel_fontsize)
     combined = np.concatenate((source_image.ravel(), model_image.ravel(), residual_image.ravel()))
     plt.xlim(np.percentile(combined, 1), np.percentile(combined, 99))
     plt.yscale('log')
-    plt.legend(loc='best', fontsize=20)
-    plt.title('Pixel Count Histogram, {}'.format(waveband), fontsize=20)
+    plt.legend(loc='best', fontsize=legend_fontsize)
+    plt.title('Pixel Count Histogram, {}'.format(waveband), fontsize=title_fontsize)
     plt.tight_layout()
     plt.savefig(os.path.join(output_folder, 'Pixel_count_histogram_{}.pdf'.format(waveband)))
     plt.close()
 
 
-def create_gaussian_fit_residual_image_counts(output_model_image_path, output_folder, waveband):
+def create_gaussian_fit_residual_image_counts(output_model_image_path, output_folder, waveband,
+                                              figure_size=(10, 8), xtick_labelsize=15, ytick_labelsize=15,
+                                              xlabel_fontsize=20, ylabel_fontsize=20, legend_fontsize=20,
+                                              title_fontsize=20):
     """
 
     :param output_model_image_path:
     :param output_folder:
     :param waveband:
+    :param figure_size:
+    :param xtick_labelsize:
+    :param ytick_labelsize:
+    :param xlabel_fontsize:
+    :param ylabel_fontsize:
+    :param legend_fontsize:
+    :param title_fontsize:
     :return:
     """
 
@@ -145,22 +192,22 @@ def create_gaussian_fit_residual_image_counts(output_model_image_path, output_fo
     popt, pcov = curve_fit(gaussian_function, residual_hist[1][:-1], residual_hist[0], p0=p0)
 
     plt.clf()
-    plt.rcParams['figure.figsize'] = (10, 8)
-    plt.rcParams['xtick.labelsize'] = 15
-    plt.rcParams['ytick.labelsize'] = 15
+    plt.rcParams['figure.figsize'] = figure_size
+    plt.rcParams['xtick.labelsize'] = xtick_labelsize
+    plt.rcParams['ytick.labelsize'] = ytick_labelsize
 
     plt.plot(residual_hist[1][:-1], residual_hist[0], color='blue', lw=2, label='Pixel counts')
     plt.plot(residual_hist[1][:-1], gaussian_function(residual_hist[1][:-1], popt[0], popt[1], popt[2]),
              color='red', lw=2, label='Gaussian fit')
 
     plt.vlines(popt[0], ymin=0, ymax=max(gaussian_function(residual_hist[1][:-1], popt[0], popt[1], popt[2])),
-               color='red', lw=2, ls='dashed', label='Mean: {:1f}'.format(popt[0]))
+               color='red', lw=2, ls='dashed', label='Mean: {:.2E}'.format(popt[0]))
 
-    plt.xlabel('Pixel Values', fontsize=20)
-    plt.ylabel('Number of Pixels', fontsize=20)
+    plt.xlabel('Pixel Values', fontsize=xlabel_fontsize)
+    plt.ylabel('Number of Pixels', fontsize=ylabel_fontsize)
     plt.xlim(popt[0] - 3 * popt[-1], popt[0] + 3 * popt[-1])
-    plt.legend(loc='upper left', fontsize=20)
-    plt.title('Gaussian fit to Residual Image pixel counts, {}'.format(waveband), fontsize=20)
+    plt.legend(loc='upper left', fontsize=legend_fontsize)
+    plt.title('Gaussian fit to Residual Image pixel counts, {}'.format(waveband), fontsize=title_fontsize)
     plt.tight_layout()
     plt.savefig(os.path.join(output_folder, 'Residual_image_pixel_count_histogram_{}.pdf'.format(waveband)))
     plt.close()
@@ -216,7 +263,10 @@ def sb_profile_errors_from_sextractor_mag_aper(mag_aper1, mag_aper2, mag_aper1_e
 
 def create_best_fitting_photometry_comparison(best_fitting_galaxy_catalogue_filename, source_galaxies_catalogue,
                                               waveband, pixel_scale, ra_key, dec_key, galaxy_id_key,
-                                              component_number_key, light_profile_key, phot_apertures, output_folder):
+                                              light_profile_key, phot_apertures, output_folder,
+                                              figure_size=(10, 8), xtick_labelsize=15, ytick_labelsize=15,
+                                              xlabel_fontsize=20, ylabel_fontsize=20, legend_fontsize=20,
+                                              title_fontsize=20):
     """
 
     :param best_fitting_galaxy_catalogue_filename:
@@ -226,10 +276,13 @@ def create_best_fitting_photometry_comparison(best_fitting_galaxy_catalogue_file
     :param ra_key:
     :param dec_key:
     :param galaxy_id_key:
-    :param component_number_key:
     :param light_profile_key:
     :param phot_apertures
     :param output_folder:
+    :param figure_size:
+    :param xtick_labelsize:
+    :param ytick_labelsize:
+    :param fontsize:
     :return:
     """
 
@@ -241,7 +294,6 @@ def create_best_fitting_photometry_comparison(best_fitting_galaxy_catalogue_file
     mag = best_fitting_galaxy_catalogue['MAG_GALFIT']
     re = best_fitting_galaxy_catalogue['RE_GALFIT']
     n = best_fitting_galaxy_catalogue['N_GALFIT']
-    component_number = best_fitting_galaxy_catalogue[component_number_key]
 
     sextractor_source_properties = []
     for i in range(len(ra)):
@@ -269,7 +321,8 @@ def create_best_fitting_photometry_comparison(best_fitting_galaxy_catalogue_file
 
         mu_from_mag_aper = np.empty_like(r_aper)
         mu_err_from_mag_aper = np.empty_like(r_aper)
-        mu_from_mag_aper[0] = mag_aper[obj_idxs][0][0] + 2.5 * np.log10(2 * np.pi) + 5 * np.log10(r_aper[0] * pixel_scale)
+        mu_from_mag_aper[0] = mag_aper[obj_idxs][0][0] + 2.5 * np.log10(2 * np.pi) + 5 * np.log10(r_aper[0] *
+                                                                                                  pixel_scale)
         mu_err_from_mag_aper[0] = mag_aper_err[obj_idxs][0][0]
         for j in range(1, len(r_aper)):
             mu_from_mag_aper[j] = sb_profile_from_sextractor_mag_aper(mag_aper[obj_idxs][0][j - 1],
@@ -282,9 +335,9 @@ def create_best_fitting_photometry_comparison(best_fitting_galaxy_catalogue_file
                                                                                  mag_aper_err[obj_idxs][0][j - 1])
 
         plt.clf()
-        plt.rcParams['figure.figsize'] = (10, 8)
-        plt.rcParams['xtick.labelsize'] = 15
-        plt.rcParams['ytick.labelsize'] = 15
+        plt.rcParams['figure.figsize'] = figure_size
+        plt.rcParams['xtick.labelsize'] = xtick_labelsize
+        plt.rcParams['ytick.labelsize'] = ytick_labelsize
         r_arcsec = np.arange(r_aper[0] * pixel_scale, r_aper[-1] * pixel_scale, 0.01)
 
         final_profile = []
@@ -308,7 +361,7 @@ def create_best_fitting_photometry_comparison(best_fitting_galaxy_catalogue_file
                          lw=2, ls='dashed', color='black',
                          label='Best-fitting Exponential disk profile, component {}'.format(k))
                 final_profile.append(sersic_profile_mag_units(mu_e[obj_idxs][k], 1.678, r_arcsec,
-                                                            re[obj_idxs][k] * pixel_scale, 1))
+                                                              re[obj_idxs][k] * pixel_scale, 1))
             else:
                 raise ValueError
 
@@ -318,66 +371,17 @@ def create_best_fitting_photometry_comparison(best_fitting_galaxy_catalogue_file
                      label='Total light profile')
 
         plt.errorbar(r_aper * pixel_scale, mu_from_mag_aper, yerr=mu_err_from_mag_aper,
-                     fmt='o', capthick=2, elinewidth=2, mec='black', color='red',
+                     fmt='o', ms=10, capsize=5, capthick=2, elinewidth=5, mec='black', color='red',
                      label='SExtractor aperture photometry')
-        plt.xlabel('r [arcsec]', fontsize=20)
-        plt.ylabel(r'SB [mag arcsec$^{-2}$]', fontsize=20)
+        plt.xlabel('r [arcsec]', fontsize=xlabel_fontsize)
+        plt.ylabel(r'SB [mag arcsec$^{-2}$]', fontsize=ylabel_fontsize)
         plt.ylim(mu_from_mag_aper[0] - 5, mu_from_mag_aper[-1] + 5)
         plt.gca().invert_yaxis()
-        plt.legend(loc='best', fontsize=10)
+        plt.legend(loc='best', fontsize=legend_fontsize)
         plt.title('Comparison ID:{} {} with aperture photometry'.format(galaxy_id[i], waveband),
-                  fontsize=20)
+                  fontsize=title_fontsize)
         plt.tight_layout()
         plt.savefig(os.path.join(output_folder,
                                  'ID{}_{}_best_fit_model_vs_sextractor_photometry.pdf'
                                  .format(galaxy_id[i], waveband)))
         plt.close()
-
-
-    #or i in range(len(mu_e)):
-
-    #   mu_from_mag_aper = np.empty_like(r_aper)
-    #   mu_err_from_mag_aper = np.empty_like(r_aper)
-    #   mu_from_mag_aper[0] = mag_aper[i, 0] + 2.5 * np.log10(2 * np.pi) + 5 * np.log10(r_aper[0] * pixel_scale)
-    #   mu_err_from_mag_aper[0] = mag_aper_err[i, 0]
-    #   for j in range(1, len(r_aper)):
-    #       mu_from_mag_aper[j] = sb_profile_from_sextractor_mag_aper(mag_aper[i, j - 1],
-    #                                                                 mag_aper[i, j],
-    #                                                                 r_aper[j - 1] * pixel_scale,
-    #                                                                 r_aper[j] * pixel_scale)
-    #       mu_err_from_mag_aper[j] = sb_profile_errors_from_sextractor_mag_aper(mag_aper[i, j],
-    #                                                                            mag_aper[i, j - 1],
-    #                                                                            mag_aper_err[i, j],
-    #                                                                            mag_aper_err[i, j - 1])
-
-    #   plt.clf()
-    #   plt.rcParams['figure.figsize'] = (10, 8)
-    #   plt.rcParams['xtick.labelsize'] = 15
-    #   plt.rcParams['ytick.labelsize'] = 15
-    #   r_arcsec = np.arange(r_aper[0] * pixel_scale, r_aper[-1] * pixel_scale, 0.01)
-    #   if light_profile[i] == 'sersic':
-    #       plt.plot(r_arcsec, sersic_profile_mag_units(mu_e[i], kappa[i], r_arcsec, re[i] * pixel_scale, n[i]),
-    #                lw=2,
-    #                color='black', label='Best-fitting Sersic profile')
-    #   elif light_profile[i] == 'devauc':
-    #       plt.plot(r_arcsec, sersic_profile_mag_units(mu_e[i], 7.669, r_arcsec, re[i] * pixel_scale, 4),
-    #                lw=2, color='black', label='Best-fitting de Vaucouleurs profile')
-    #   elif light_profile[i] == 'expdisk':
-    #       plt.plot(r_arcsec, sersic_profile_mag_units(mu_e[i], 1.678, r_arcsec, re[i] * pixel_scale, 1),
-    #                lw=2, color='black', label='Best-fitting Exponential disk profile')
-    #   else:
-    #       raise ValueError
-    #   plt.errorbar(r_aper * pixel_scale, mu_from_mag_aper, yerr=mu_err_from_mag_aper,
-    #                fmt='o', capthick=2, elinewidth=2, mec='black', color='red',
-    #                label='SExtractor aperture photometry')
-    #   plt.xlabel('r [arcsec]', fontsize=10)
-    #   plt.ylabel(r'SB [mag arcsec$^{-2}$]', fontsize=10)
-    #   plt.ylim(15, 30)
-    #   plt.gca().invert_yaxis()
-    #   plt.legend(loc='best', fontsize=10)
-    #   plt.title('Comparison light profile ID:{} with SExtractor photometry'.format(galaxy_id[i]),
-    #             fontsize=10)
-    #   plt.tight_layout()
-    #   plt.savefig(os.path.join(output_folder,
-    #                            'ID{}_component{}_{}_best_fit_model_vs_sextractor_photometry.pdf'
-    #                            .format(galaxy_id[i], component_number[i], waveband)))

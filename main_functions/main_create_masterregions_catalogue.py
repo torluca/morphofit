@@ -19,7 +19,7 @@ import numpy as np
 
 # morphofit imports
 from morphofit.utils import get_logger
-from morphofit.catalogue_managing import combine_properties, delete_repeating_sources
+from morphofit.catalogue_managing import combine_properties  # , delete_repeating_sources
 from morphofit.catalogue_managing import match_with_source_galaxies_catalogue
 
 logger = get_logger(__file__)
@@ -119,9 +119,9 @@ def create_masterregions_catalogue(args, root_target_fields, root_regions_target
 
     subprocess.run(['cp', multiband_table_filename, root_target_fields])
 
-    multiband_table = delete_repeating_sources(multiband_table, wavebands)
-    multiband_table_filename = os.path.join(temp_dir, '{}_{}_regions.cat'.format(telescope_name, target_field_name))
-    multiband_table.write(multiband_table_filename, format='fits', overwrite=True)
+    # multiband_table = delete_repeating_sources(multiband_table, wavebands)
+    # multiband_table_filename = os.path.join(temp_dir, '{}_{}_regions.cat'.format(telescope_name, target_field_name))
+    # multiband_table.write(multiband_table_filename, format='fits', overwrite=True)
 
     subprocess.run(['cp', multiband_table_filename, root_target_fields])
     subprocess.run(['cp'] + glob.glob(os.path.join(temp_dir, '*region*.cat')) + [root_regions_target_fields])

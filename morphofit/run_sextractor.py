@@ -114,7 +114,7 @@ def get_sextractor_forced_cmd(sci_images, detection_image, detection_image_catal
                               sextractor_filter='gauss_3.0_5x5.conv', sextractor_nnw='default.nnw',
                               sextractor_checkimages=None,
                               sextractor_checkimages_endings=None, rms_images=None,
-                              detection_rms_image=None):
+                              detection_rms_image=None, sextractor_psf=None):
     """
     This function creates a list of commands that are fed to subprocess to run SExtractor. Seeing value should be in
     arcseconds.
@@ -139,6 +139,7 @@ def get_sextractor_forced_cmd(sci_images, detection_image, detection_image_catal
     :param sextractor_checkimages_endings:
     :param rms_images:
     :param detection_rms_image:
+    :param sextractor_psf:
     :return cmd: list of commands for SExtractor binary.
     :return checkimages_names: names of SExtractor checkimages to generate.
     """
@@ -201,11 +202,14 @@ def get_sextractor_forced_cmd(sci_images, detection_image, detection_image_catal
         catalogue_name_short = sextractor_catalogue_names[i].rsplit(".", 1)[0]
         checkimages_names = []
         checkimages = sextractor_checkimages
+
         for suffix in sextractor_checkimages_endings:
             checkimages_names += [catalogue_name_short + '_{}.fits'.format(suffix)]
+
         if len(checkimages_names) == 0:
             checkimages_names = ['NONE']
             checkimages = ['NONE']
+
         single_cmd = [sextractor_binary,
                       detection_image + ',' + sci_images[i],
                       "-c", sextractor_config,
@@ -224,6 +228,11 @@ def get_sextractor_forced_cmd(sci_images, detection_image, detection_image_catal
                       "-CHECKIMAGE_NAME", ",".join(checkimages_names),
                       "-CATALOG_TYPE", "FITS_1.0",
                       "-VERBOSE_TYPE", "QUIET"]
+
+        if sextractor_psf is not None:
+            single_cmd.append("-PSF_NAME")
+            single_cmd.append(sextractor_psf[i])
+
         if rms_images is not None:
             single_cmd.append("-WEIGHT_TYPE")
             single_cmd.append("MAP_RMS, MAP_RMS")
