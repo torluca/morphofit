@@ -61,7 +61,7 @@ def main(indices, args):
             rms_images_list = sorted(rms_images_list, key=lambda x: ordered_wavebands[x.split('_')[-2]])
             rms_images_encoded = [name.encode('utf8') for name in rms_images_list]
         else:
-            rms_images_encoded = list(np.full(len(rms_images_list), 'None'.encode('utf8')))
+            rms_images_encoded = list(np.full(len(sci_images_list), 'None'.encode('utf8')))
 
         exp_images_list = [os.path.basename(name)
                            for name in glob.glob(os.path.join(root_target_field,
@@ -71,7 +71,7 @@ def main(indices, args):
             exp_images_list = sorted(exp_images_list, key=lambda x: ordered_wavebands[x.split('_')[-2]])
             exp_images_encoded = [name.encode('utf8') for name in exp_images_list]
         else:
-            exp_images_encoded = list(np.full(len(exp_images_list), 'None'.encode('utf8')))
+            exp_images_encoded = list(np.full(len(sci_images_list), 'None'.encode('utf8')))
 
         images_to_compress = sci_images_list + rms_images_list + exp_images_list
 

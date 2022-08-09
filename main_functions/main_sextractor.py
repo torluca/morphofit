@@ -104,7 +104,7 @@ def run_sextractor(args, telescope_name, target_field_name, root_target_field, s
                            saturations, effective_gains, pixel_scale,
                            bkg_sigmas)
 
-    if rms_images:
+    if 'None' not in [os.path.basename(name) for name in rms_images]:
         logger.info('=============================== create rms detection image')
         create_rms_detection_image(rms_images, detect_rms_image_name, wavebands, bkg_sigmas)
 

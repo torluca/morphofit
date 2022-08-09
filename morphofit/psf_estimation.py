@@ -95,7 +95,7 @@ def subtract_2d_background_from_image(data, size=(30, 30), sigma=2, filter_size=
     :return:
     """
 
-    sigma_clip = SigmaClip(sigma=sigma, iters=iters)
+    sigma_clip = SigmaClip(sigma=sigma, maxiters=iters)
     bkg_estimator = MedianBackground()
     bkg = Background2D(data, size, filter_size=filter_size,
                        sigma_clip=sigma_clip, bkg_estimator=bkg_estimator)
@@ -223,16 +223,20 @@ def get_seeings(telescope_name, sci_images, wavebands, catalogues, ext_star_cat,
         if telescope_name == 'HST':
             background_noise_amp = background_noise_amps[wavebands[idx_name]]
             seeing_initial_guess = seeing_initial_guesses[idx_name]
-            fwhms[wavebands[idx_name]], betas[wavebands[idx_name]] = beta_seeing_evaluation(name,
-                                                                                            catalogues[idx_name],
-                                                                                            ext_star_cat,
-                                                                                            pixel_scale,
-                                                                                            background_noise_amp,
-                                                                                            seeing_initial_guess,
-                                                                                            catalogue_ra_keyword,
-                                                                                            catalogue_dec_keyword,
-                                                                                            ext_stars_ra_keyword,
-                                                                                            ext_stars_dec_keyword)
+            try:
+                fwhms[wavebands[idx_name]], betas[wavebands[idx_name]] = beta_seeing_evaluation(name,
+                                                                                                catalogues[idx_name],
+                                                                                                ext_star_cat,
+                                                                                                pixel_scale,
+                                                                                                background_noise_amp,
+                                                                                                seeing_initial_guess,
+                                                                                                catalogue_ra_keyword,
+                                                                                                catalogue_dec_keyword,
+                                                                                                ext_stars_ra_keyword,
+                                                                                                ext_stars_dec_keyword)
+            except Exception as e:
+                logger.info(e)
+                fwhms[wavebands[idx_name]], betas[wavebands[idx_name]] = 0.1, 3.5
         else:
             logger.info('To be implemented...')
 

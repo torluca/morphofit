@@ -26,7 +26,7 @@ def get_sextractor_cmd(sci_image, sextractor_catalogue_name, psf_fwhm, saturatio
                        sextractor_config='default.sex', sextractor_params='default.param',
                        sextractor_filter='gauss_3.0_5x5.conv', sextractor_nnw='default.nnw',
                        sextractor_checkimages=None,
-                       sextractor_checkimages_endings=None, rms_image=None):
+                       sextractor_checkimages_endings=None, rms_image='None'):
     """
     This function creates the command file for running Source Extractor.
 
@@ -95,7 +95,7 @@ def get_sextractor_cmd(sci_image, sextractor_catalogue_name, psf_fwhm, saturatio
            "-CATALOG_TYPE", "FITS_1.0",
            "-VERBOSE_TYPE", "QUIET"]
 
-    if rms_image is not None:
+    if os.path.basename(rms_image) != 'None':
         cmd.append("-WEIGHT_TYPE")
         cmd.append("MAP_RMS")
         cmd.append("-WEIGHT_IMAGE")
@@ -113,8 +113,8 @@ def get_sextractor_forced_cmd(sci_images, detection_image, detection_image_catal
                               sextractor_config='default.sex', sextractor_params='default.param',
                               sextractor_filter='gauss_3.0_5x5.conv', sextractor_nnw='default.nnw',
                               sextractor_checkimages=None,
-                              sextractor_checkimages_endings=None, rms_images=None,
-                              detection_rms_image=None, sextractor_psf=None):
+                              sextractor_checkimages_endings=None, rms_images=['None'],
+                              detection_rms_image='None', sextractor_psf='None'):
     """
     This function creates a list of commands that are fed to subprocess to run SExtractor. Seeing value should be in
     arcseconds.
@@ -188,7 +188,7 @@ def get_sextractor_forced_cmd(sci_images, detection_image, detection_image_catal
                   "-CHECKIMAGE_NAME", ",".join(checkimages_names),
                   "-CATALOG_TYPE", "FITS_1.0",
                   "-VERBOSE_TYPE", "QUIET"]
-    if detection_rms_image is not None:
+    if 'None' not in os.path.basename(detection_rms_image):
         single_cmd.append("-WEIGHT_TYPE")
         single_cmd.append("MAP_RMS, MAP_RMS")
         single_cmd.append("-WEIGHT_IMAGE")
@@ -229,11 +229,11 @@ def get_sextractor_forced_cmd(sci_images, detection_image, detection_image_catal
                       "-CATALOG_TYPE", "FITS_1.0",
                       "-VERBOSE_TYPE", "QUIET"]
 
-        if sextractor_psf is not None:
+        if os.path.basename(sextractor_psf) != 'None':
             single_cmd.append("-PSF_NAME")
             single_cmd.append(sextractor_psf[i])
 
-        if rms_images is not None:
+        if 'None' not in [os.path.basename(name) for name in rms_images]:
             single_cmd.append("-WEIGHT_TYPE")
             single_cmd.append("MAP_RMS, MAP_RMS")
             single_cmd.append("-WEIGHT_IMAGE")
