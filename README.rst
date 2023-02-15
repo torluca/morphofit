@@ -4,7 +4,7 @@ morphofit
 
 A Python package for the morphological analysis of galaxies (Tortorelli & Mercurio 2023).
 
-When using this code, please cite Tortorelli et al 2018, 2023, and Peng et al. 2002, 2010.
+When using this code, please cite Tortorelli et al. 2018, Tortorelli & Mercurio 2023, and Tortorelli et al. 2023.
 
 Author
 ------
@@ -51,4 +51,4 @@ See the Jupyter notebook `demo_usage.ipynb` in the morphofit/examples folder for
 Acknowledgements
 --------
 
-The author is grateful to Chien Y. Peng for the development of GALFIT.
+The author is grateful to Chien Y. Peng for the development of GALFIT (Peng et al. 2002, 2010).
