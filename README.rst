@@ -49,6 +49,6 @@ morphofit consists of a series of modules that are run via command line using th
 See the Jupyter notebook `demo_usage.ipynb` in the morphofit/examples folder for more details.
 
 Acknowledgements
---------
+----------------
 
 The author is grateful to Chien Y. Peng for the development of GALFIT (Peng et al. 2002, 2010).
