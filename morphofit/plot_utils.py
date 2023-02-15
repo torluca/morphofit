@@ -282,7 +282,10 @@ def create_best_fitting_photometry_comparison(best_fitting_galaxy_catalogue_file
     :param figure_size:
     :param xtick_labelsize:
     :param ytick_labelsize:
-    :param fontsize:
+    :param xlabel_fontsize:
+    :param ylabel_fontsize:
+    :param legend_fontsize:
+    :param title_fontsize:
     :return:
     """
 

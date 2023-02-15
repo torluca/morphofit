@@ -60,7 +60,7 @@ def main(indices, args):
                                                        .format(args.telescope_name, target_field_name,
                                                                args.source_galaxies_catalogue_suffix)).encode('utf8'))
 
-        n_target_galaxies = len(target_galaxies_catalogue)
+        n_target_galaxies = len(np.unique(target_galaxies_catalogue[args.target_galaxies_id_key]))
         indices_stamps = np.arange(0, n_target_galaxies, 1, dtype=int)
         indices_target_galaxies.append(["{:02d}".format(item).encode('utf8') for item in indices_stamps])
         combinations = [['{}'.format(x).encode('utf8'), '{}'.format(y).encode('utf8'), '{}'.format(z).encode('utf8'),
@@ -170,6 +170,8 @@ def setup(args):
     parser.add_argument('--source_galaxies_catalogue_suffix', type=str, action='store',
                         default='multiband_sources.forced.cat',
                         help='Multiband source galaxies catalogue suffix')
+    parser.add_argument('--target_galaxies_id_key', type=str, action='store', default='NUMBER',
+                        help='Catalogue header keyword for target galaxies ID')
 
     args = parser.parse_args(args)
 

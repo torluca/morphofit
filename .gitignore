@@ -5,3 +5,5 @@ dist
 __pycache__
 deprecated_functions_scripts
 *.ini
+./examples/.ipynb_checkpoints
+./examples/esub_logs

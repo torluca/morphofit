@@ -63,9 +63,3 @@ Before you submit a merge request, check that it meets these guidelines:
    feature to the list in README.rst.
 4. The pull request should work for Python latest 3.X.
 
-Tips
-----
-
-To run a subset of tests::
-
-	 $ py.test test/test_morphofit.py

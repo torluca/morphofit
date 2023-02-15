@@ -30,8 +30,8 @@ PACKAGE_PATH = os.path.abspath(os.path.join(__file__, os.pardir))
 
 setup(
     name="morphofit",
-    version="1.0.0",
-    description="A Python morphological analysis package of galaxies",
+    version="1.1.0",
+    description="A Python package for the morphological analysis of galaxies (Tortorelli and Mercurio 2023)",
     long_description=readme + "\n\n" + doclink + "\n\n" + history,
     author="Luca Tortorelli",
     author_email="Luca.Tortorelli@physik.lmu.de",
@@ -49,6 +49,7 @@ setup(
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
+        "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.10",
     ],
 )
