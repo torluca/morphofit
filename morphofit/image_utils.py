@@ -494,9 +494,13 @@ def crop_routine_size_based(sci_image_filename, seg_image_filename, rms_image_fi
     cropped_sci_image_filename = size_based_crop(sci_image_filename, size_range_x, size_range_y,
                                                  crop_suffix, output_directory)
     cropped_sci_image_filenames.append(cropped_sci_image_filename)
-    cropped_seg_image_filename = size_based_crop(seg_image_filename, size_range_x, size_range_y,
-                                                 crop_suffix, output_directory)
-    cropped_seg_image_filenames.append(cropped_seg_image_filename)
+    try:
+        cropped_seg_image_filename = size_based_crop(seg_image_filename, size_range_x, size_range_y,
+                                                     crop_suffix, output_directory)
+        cropped_seg_image_filenames.append(cropped_seg_image_filename)
+    except Exception as e:
+        logger.info(e)
+        logger.info('Missing seg image')
     try:
         cropped_rms_image_filename = size_based_crop(rms_image_filename, size_range_x, size_range_y,
                                                      crop_suffix, output_directory)
@@ -539,10 +543,14 @@ def crop_routine_catalogue_based(sci_image_filename, seg_image_filename, rms_ima
                                                       crop_suffix, x_keyword, y_keyword,
                                                       output_directory)
     cropped_sci_image_filenames.append(cropped_sci_image_filename)
-    cropped_seg_image_filename = catalogue_based_crop(seg_image_filename, external_catalogue,
-                                                      crop_suffix, x_keyword, y_keyword,
-                                                      output_directory)
-    cropped_seg_image_filenames.append(cropped_seg_image_filename)
+    try:
+        cropped_seg_image_filename = catalogue_based_crop(seg_image_filename, external_catalogue,
+                                                          crop_suffix, x_keyword, y_keyword,
+                                                          output_directory)
+        cropped_seg_image_filenames.append(cropped_seg_image_filename)
+    except Exception as e:
+        logger.info(e)
+        logger.info('Missing seg image')
     try:
         cropped_rms_image_filename = catalogue_based_crop(rms_image_filename, external_catalogue,
                                                           crop_suffix, x_keyword, y_keyword,
@@ -586,14 +594,15 @@ def crop_images(sci_image_filenames, rms_image_filenames, seg_image_filenames, e
     cropped_sci_image_filenames, cropped_rms_image_filenames = [], []
     cropped_seg_image_filenames, cropped_exp_image_filenames = [], []
 
-    if (size_range_x is '') | (size_range_y is ''):
+    if (size_range_x == '') | (size_range_y == ''):
         size_range_x = [0, 1000]
         size_range_y = [0, 1000]
+    else:
+        size_range_x = [int(elem) for elem in size_range_x.split(',')]
+        size_range_y = [int(elem) for elem in size_range_y.split(',')]
 
     for i in range(len(wavebands)):
         if crop_routine == 'size_based':
-            size_range_x = [int(elem) for elem in size_range_x.split(',')]
-            size_range_y = [int(elem) for elem in size_range_y.split(',')]
             crop_routine_size_based(sci_image_filenames[i], seg_image_filenames[i],
                                     rms_image_filenames[i], exp_image_filenames[i],
                                     size_range_x, size_range_y,
