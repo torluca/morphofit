@@ -141,6 +141,7 @@ def create_cutout(image, header, x_source, y_source, effective_radius_source, en
     size_cutout_x = effective_radius_source * enlarging_factor * (abs(np.cos(angle)) + axis_ratio * abs(np.sin(angle)))
     size_cutout_y = effective_radius_source * enlarging_factor * (abs(np.sin(angle)) + axis_ratio * abs(np.cos(angle)))
     cutout_image_size = (size_cutout_y, size_cutout_x)
+    # cutout_image_size = (64, 64)
     w = wcs.WCS(header)
     cutout_image = Cutout2D(image, source_pixel_position, cutout_image_size, wcs=w, copy=True)
     cutout_header = header.copy()

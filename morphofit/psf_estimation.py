@@ -125,7 +125,7 @@ def fit_2d_moffat_profile(data, starting_point, size):
 
 
 def beta_seeing_evaluation(sci_image_filename, catalogue, ext_star_catalogue, pixscale,
-                           background_noise_amp, seeing_initial_guess, catalogue_ra_keyword, catalogue_dec_keyword,
+                           background_noise_amp, psf_fwhm_init_guess, catalogue_ra_keyword, catalogue_dec_keyword,
                            ext_stars_ra_keyword, ext_stars_dec_keyword):
     max_dist_arcsec = 1.0
     data = fits.getdata(sci_image_filename)
@@ -170,7 +170,7 @@ def beta_seeing_evaluation(sci_image_filename, catalogue, ext_star_catalogue, pi
         else:
             if len(cutout.data) == size & len(cutout.data[0]) == size:  # avoids stars at edges
                 starting_point = [background_noise_amp, 1., int(size / 2), int(size / 2),
-                                  seeing_initial_guess / pixscale, 3.5]
+                                  psf_fwhm_init_guess / pixscale, 3.5]
                 try:
                     popt, fwhm, beta = fit_2d_moffat_profile(cutout.data, starting_point, size)
                     fwhm_array.append(fwhm)
@@ -195,7 +195,7 @@ def beta_seeing_evaluation(sci_image_filename, catalogue, ext_star_catalogue, pi
 
 
 def get_hst_seeing(sci_image_name, catalogue, external_star_catalogue, pixel_scale, background_noise_amp,
-                   seeing_initial_guess, catalogue_ra_keyword, catalogue_dec_keyword, ext_stars_ra_keyword,
+                   psf_fwhm_init_guess, catalogue_ra_keyword, catalogue_dec_keyword, ext_stars_ra_keyword,
                    ext_stars_dec_keyword):
     """
 
@@ -204,7 +204,7 @@ def get_hst_seeing(sci_image_name, catalogue, external_star_catalogue, pixel_sca
     :param external_star_catalogue:
     :param pixel_scale:
     :param background_noise_amp:
-    :param seeing_initial_guess:
+    :param psf_fwhm_init_guess:
     :param catalogue_ra_keyword:
     :param catalogue_dec_keyword:
     :param ext_stars_ra_keyword:
@@ -214,17 +214,17 @@ def get_hst_seeing(sci_image_name, catalogue, external_star_catalogue, pixel_sca
 
     try:
         fwhm, beta = beta_seeing_evaluation(sci_image_name, catalogue, external_star_catalogue, pixel_scale,
-                                            background_noise_amp, seeing_initial_guess, catalogue_ra_keyword,
+                                            background_noise_amp, psf_fwhm_init_guess, catalogue_ra_keyword,
                                             catalogue_dec_keyword, ext_stars_ra_keyword, ext_stars_dec_keyword)
     except Exception as e:
         logger.info(e)
-        fwhm, beta = 0.1, 3.5
+        fwhm, beta = psf_fwhm_init_guess, 3.5
 
     return fwhm, beta
 
 
 def get_omegacam_seeing(sci_image_name, catalogue, external_star_catalogue, pixel_scale, background_noise_amp,
-                        seeing_initial_guess, catalogue_ra_keyword, catalogue_dec_keyword, ext_stars_ra_keyword,
+                        psf_fwhm_init_guess, catalogue_ra_keyword, catalogue_dec_keyword, ext_stars_ra_keyword,
                         ext_stars_dec_keyword):
     """
 
@@ -233,7 +233,7 @@ def get_omegacam_seeing(sci_image_name, catalogue, external_star_catalogue, pixe
     :param external_star_catalogue:
     :param pixel_scale:
     :param background_noise_amp:
-    :param seeing_initial_guess:
+    :param psf_fwhm_init_guess:
     :param catalogue_ra_keyword:
     :param catalogue_dec_keyword:
     :param ext_stars_ra_keyword:
@@ -243,7 +243,7 @@ def get_omegacam_seeing(sci_image_name, catalogue, external_star_catalogue, pixe
 
     try:
         fwhm, beta = beta_seeing_evaluation(sci_image_name, catalogue, external_star_catalogue, pixel_scale,
-                                            background_noise_amp, seeing_initial_guess, catalogue_ra_keyword,
+                                            background_noise_amp, psf_fwhm_init_guess, catalogue_ra_keyword,
                                             catalogue_dec_keyword, ext_stars_ra_keyword, ext_stars_dec_keyword)
         fwhm = fits.getheader(sci_image_name)['PSF_RAD']
     except Exception as e:
@@ -254,9 +254,37 @@ def get_omegacam_seeing(sci_image_name, catalogue, external_star_catalogue, pixe
     return fwhm, beta
 
 
+def get_jwst_seeing(sci_image_name, catalogue, external_star_catalogue, pixel_scale, background_noise_amp,
+                    psf_fwhm_init_guess, catalogue_ra_keyword, catalogue_dec_keyword, ext_stars_ra_keyword,
+                    ext_stars_dec_keyword):
+    """
+
+    :param sci_image_name:
+    :param catalogue:
+    :param external_star_catalogue:
+    :param pixel_scale:
+    :param background_noise_amp:
+    :param psf_fwhm_init_guess:
+    :param catalogue_ra_keyword:
+    :param catalogue_dec_keyword:
+    :param ext_stars_ra_keyword:
+    :param ext_stars_dec_keyword:
+    :return:
+    """
+
+    try:
+        fwhm, beta = beta_seeing_evaluation(sci_image_name, catalogue, external_star_catalogue, pixel_scale,
+                                            background_noise_amp, psf_fwhm_init_guess, catalogue_ra_keyword,
+                                            catalogue_dec_keyword, ext_stars_ra_keyword, ext_stars_dec_keyword)
+    except Exception as e:
+        logger.info(e)
+        fwhm, beta = psf_fwhm_init_guess, 3.5
+
+    return fwhm, beta
+
 
 def get_seeings(telescope_name, sci_images, wavebands, catalogues, ext_star_cat, pixel_scale,
-                background_noise_amps, seeing_initial_guesses, catalogue_ra_keyword, catalogue_dec_keyword,
+                background_noise_amps, psf_fwhm_init_guesses, catalogue_ra_keyword, catalogue_dec_keyword,
                 ext_stars_ra_keyword, ext_stars_dec_keyword):
     """
     This function computes the fwhm and beta of stars by fitting a 2D circular Moffat profile.
@@ -269,7 +297,7 @@ def get_seeings(telescope_name, sci_images, wavebands, catalogues, ext_star_cat,
     :param ext_star_cat:
     :param pixel_scale:
     :param background_noise_amps:
-    :param seeing_initial_guesses:
+    :param psf_fwhm_init_guesses:
     :param catalogue_ra_keyword:
     :param catalogue_dec_keyword:
     :param ext_stars_ra_keyword:
@@ -277,7 +305,7 @@ def get_seeings(telescope_name, sci_images, wavebands, catalogues, ext_star_cat,
     :return fwhms, betas: dict, dictionaries of fwhms and betas of the 2D Moffat profiles.
     """
 
-    seeing_switcher = {'HST': get_hst_seeing, 'OCAM': get_omegacam_seeing}
+    seeing_switcher = {'HST': get_hst_seeing, 'OCAM': get_omegacam_seeing, 'JWST': get_jwst_seeing}
 
     fwhms = {}
     betas = {}
@@ -285,13 +313,13 @@ def get_seeings(telescope_name, sci_images, wavebands, catalogues, ext_star_cat,
         idx_name = sci_images.index(name)
 
         background_noise_amp = background_noise_amps[wavebands[idx_name]]
-        seeing_initial_guess = seeing_initial_guesses[idx_name]
+        psf_fwhm_init_guess = psf_fwhm_init_guesses[idx_name]
 
         seeing_function = seeing_switcher.get(telescope_name, lambda: 'To be implemented...')
         fwhms[wavebands[idx_name]], betas[wavebands[idx_name]] = seeing_function(name,  catalogues[idx_name],
                                                                                  ext_star_cat, pixel_scale,
                                                                                  background_noise_amp,
-                                                                                 seeing_initial_guess,
+                                                                                 psf_fwhm_init_guess,
                                                                                  catalogue_ra_keyword,
                                                                                  catalogue_dec_keyword,
                                                                                  ext_stars_ra_keyword,

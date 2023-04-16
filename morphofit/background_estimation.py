@@ -74,20 +74,19 @@ def oned_background_estimate(img_name, sextractor_catalog_name, seeing, saturati
     return back_median, back_std, back_se_median, back_se_std
 
 
-def twod_background_estimate(img_name, sigma, iters, box_size, filter_size):
+def twod_background_estimate(img_name, sigma, box_size, filter_size):
     """
     This function estimates the background amplitude and rms by creating a 2D sigma clipped background map.
     Not used for the moment.
 
     :param img_name:
     :param sigma:
-    :param iters:
     :param box_size:
     :param filter_size:
     :return:
     """
     image, h = fits.getdata(img_name, header=True)
-    sigma_clip = SigmaClip(sigma=sigma, iters=iters)
+    sigma_clip = SigmaClip(sigma=sigma)
     bkg_estimator = MedianBackground()
     bkg = Background2D(image, (box_size, box_size), filter_size=(filter_size, filter_size),
                        sigma_clip=sigma_clip, bkg_estimator=bkg_estimator)
@@ -96,10 +95,10 @@ def twod_background_estimate(img_name, sigma, iters, box_size, filter_size):
     return bkg.background_median, bkg.background_rms_median
 
 
-def get_hst_background_parameters(img_names, wavebands, se_cats, saturations, zeropoints, gains, pixel_scale,
-                                  photo_cmd, sextractor_binary, sextractor_config, sextractor_params,
-                                  sextractor_filter, sextractor_nnw, sextractor_checkimages,
-                                  sextractor_checkimages_endings, rms_images=None):
+def get_background_parameters(img_names, wavebands, se_cats, saturations, zeropoints, gains, pixel_scale,
+                              psf_fwhm_init_guesses, photo_cmd, sextractor_binary, sextractor_config,
+                              sextractor_params, sextractor_filter, sextractor_nnw, sextractor_checkimages,
+                              sextractor_checkimages_endings, rms_images=None):
     """
     This function computes the background noise parameters.
 
@@ -110,6 +109,7 @@ def get_hst_background_parameters(img_names, wavebands, se_cats, saturations, ze
     :param zeropoints:
     :param gains:
     :param pixel_scale:
+    :param psf_fwhm_init_guesses:
     :param photo_cmd:
     :param rms_images:
     :param sextractor_binary:
@@ -132,7 +132,7 @@ def get_hst_background_parameters(img_names, wavebands, se_cats, saturations, ze
     for name in img_names:
         idx_name = img_names.index(name)
         back_median, back_std, back_se_median, back_se_std = oned_background_estimate(name, se_cats[idx_name],
-                                                                                      0.1,
+                                                                                      psf_fwhm_init_guesses[idx_name],
                                                                                       saturations[wavebands[idx_name]],
                                                                                       zeropoints[wavebands[idx_name]],
                                                                                       gains[wavebands[idx_name]],

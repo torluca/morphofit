@@ -378,7 +378,7 @@ def create_best_fitting_photometry_comparison(best_fitting_galaxy_catalogue_file
                      label='SExtractor aperture photometry')
         plt.xlabel('r [arcsec]', fontsize=xlabel_fontsize)
         plt.ylabel(r'SB [mag arcsec$^{-2}$]', fontsize=ylabel_fontsize)
-        plt.ylim(mu_from_mag_aper[0] - 5, mu_from_mag_aper[-1] + 5)
+        plt.ylim(np.nanmin(mu_from_mag_aper) - 5, np.nanmax(mu_from_mag_aper) + 5)
         plt.gca().invert_yaxis()
         plt.legend(loc='best', fontsize=legend_fontsize)
         plt.title('Comparison ID:{} {} with aperture photometry'.format(galaxy_id[i], waveband),

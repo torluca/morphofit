@@ -58,6 +58,19 @@ def get_omegacam_saturation(img_name):
     return saturation
 
 
+def get_jwst_saturation(img_name):
+    """
+
+        :param img_name:
+        :return:
+        """
+
+    header = fits.getheader(img_name)
+    saturation = header['SATURATE']
+
+    return saturation
+
+
 def get_generic_saturation(img_name):
     """
 
@@ -82,7 +95,7 @@ def get_saturations(telescope_name, img_names, wavebands):
     :return saturations: dict, dictionary of maximum pixel value in the image.
     """
 
-    saturations_switcher = {'HST': get_hst_saturation, 'OCAM': get_omegacam_saturation}
+    saturations_switcher = {'HST': get_hst_saturation, 'OCAM': get_omegacam_saturation, 'JWST': get_jwst_saturation}
 
     saturations = {}
     for name in img_names:
@@ -122,6 +135,19 @@ def get_omegacam_exposure_time(img_name):
     return exptime
 
 
+def get_jwst_exposure_time(img_name):
+    """
+
+        :param img_name:
+        :return:
+        """
+
+    h = fits.getheader(img_name, ext=0)
+    exptime = h['TEXPTIME']
+
+    return exptime
+
+
 def get_exposure_times(telescope_name, img_names, wavebands):
     """
     This function reads the exposure time from the image HEADER.
@@ -132,18 +158,14 @@ def get_exposure_times(telescope_name, img_names, wavebands):
     :return exptimes: dict, dictionary of exposure times.
     """
 
-    exptimes_switcher = {'HST': get_hst_exposure_time, 'OCAM': get_omegacam_exposure_time}
+    exptimes_switcher = {'HST': get_hst_exposure_time, 'OCAM': get_omegacam_exposure_time,
+                         'JWST': get_jwst_exposure_time}
 
     exptimes = {}
     for name in img_names:
         idx_name = img_names.index(name)
         exptime_function = exptimes_switcher.get(telescope_name, lambda: 'To be implemented...')
         exptimes[wavebands[idx_name]] = exptime_function(name)
-        # if telescope_name == 'HST':
-        #     h = fits.getheader(name, ext=0)
-        #     exptimes[wavebands[idx_name]] = h['EXPTIME']
-        # else:
-        #     logger.info('To be implemented...')
 
     return exptimes
 
@@ -176,6 +198,20 @@ def get_omegacam_gain(img_name):
     return effective_gain, instrumental_gain
 
 
+def get_jwst_gain(img_name):
+    """
+
+    :param img_name:
+    :return:
+    """
+
+    h = fits.getheader(img_name, ext=0)
+    effective_gain = h['TEXPTIME']
+    instrumental_gain = 2.0  # 2.05 ± 0.4 for short-wave channel, 1.82 ± 0.4 for long-wave channel
+
+    return effective_gain, instrumental_gain
+
+
 def get_gains(telescope_name, img_names, wavebands):
     """
     This function computes the gains for each HST image.
@@ -186,7 +222,7 @@ def get_gains(telescope_name, img_names, wavebands):
     :return gains: dict, dictionary of gains in the images.
     """
 
-    gains_switcher = {'HST': get_hst_gain, 'OCAM': get_omegacam_gain}
+    gains_switcher = {'HST': get_hst_gain, 'OCAM': get_omegacam_gain, 'JWST': get_jwst_gain}
 
     effective_gains = {}
     instrumental_gains = {}
@@ -274,6 +310,26 @@ def get_omegacam_zeropoint(img_name=None, target_name=None, waveband=None):
     return zeropoint
 
 
+def get_jwst_zeropoint(img_name=None, target_name=None, waveband=None):
+    """
+
+    :param img_name:
+    :param target_name:
+    :param waveband:
+    :return:
+    """
+
+    h = fits.getheader(img_name, ext=0)
+
+    try:
+        zeropoint = h['ZP']
+    except Exception as e:
+        logger.info(e)
+        zeropoint = -6.10 - 2.5 * np.log10(h['PIXAR_SR'])
+
+    return zeropoint
+
+
 def get_zeropoints(telescope_name, target_name, img_names, wavebands):
     """
     This function returns the zeropoint of each image coorrected for the galactic extinction
@@ -288,7 +344,7 @@ def get_zeropoints(telescope_name, target_name, img_names, wavebands):
     :return zeropoints: dict, dictionary of extinction corrected zeropoints.
     """
 
-    zeropoints_switcher = {'HST': get_hst_zeropoint, 'OCAM': get_omegacam_zeropoint}
+    zeropoints_switcher = {'HST': get_hst_zeropoint, 'OCAM': get_omegacam_zeropoint, 'JWST': get_jwst_zeropoint}
 
     zeropoints = {}
     for name in img_names:
