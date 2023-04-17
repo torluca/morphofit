@@ -1166,12 +1166,12 @@ def compress_and_copy_files_for_galfit_stamps(index, root_target_field, temp_dir
                          os.path.basename(target_galaxies_catalogue_filename),
                          os.path.basename(source_galaxies_catalogue_filename)]
 
-    subprocess.run(['tar', '-cvf', os.path.join(root_target_field, '{}_index{:06d}.tar'
+    subprocess.run(['tar', '-cvf', os.path.join(temp_dir, '{}_index{:06d}.tar'
                                                 .format(files_archive_prefix, index)), '-C',
                     root_target_field] + files_to_compress)
 
     subprocess.run(['tar', '-C', os.path.join(root_target_field, 'stars'), '--append',
-                    '--file={}'.format(os.path.join(root_target_field,
+                    '--file={}'.format(os.path.join(temp_dir,
                                                     '{}_index{:06d}.tar'
                                                     .format(files_archive_prefix, index))),
                     os.path.basename(psf_image_filename)])
@@ -1180,7 +1180,7 @@ def compress_and_copy_files_for_galfit_stamps(index, root_target_field, temp_dir
         rms_image_filename = None
     else:
         subprocess.run(['tar', '-C', root_target_field, '--append',
-                        '--file={}'.format(os.path.join(root_target_field,
+                        '--file={}'.format(os.path.join(temp_dir,
                                                         '{}_index{:06d}.tar'
                                                         .format(files_archive_prefix, index))),
                         os.path.basename(rms_image_filename)])
@@ -1189,7 +1189,7 @@ def compress_and_copy_files_for_galfit_stamps(index, root_target_field, temp_dir
         exp_image_filename = None
     else:
         subprocess.run(['tar', '-C', root_target_field, '--append',
-                        '--file={}'.format(os.path.join(root_target_field,
+                        '--file={}'.format(os.path.join(temp_dir,
                                                         '{}_index{:06d}.tar'
                                                         .format(files_archive_prefix, index))),
                         os.path.basename(exp_image_filename)])
@@ -1198,19 +1198,19 @@ def compress_and_copy_files_for_galfit_stamps(index, root_target_field, temp_dir
         constraints_file_filename = 'None'
     else:
         subprocess.run(['tar', '-C', root_target_field, '--append',
-                        '--file={}'.format(os.path.join(root_target_field,
+                        '--file={}'.format(os.path.join(temp_dir,
                                                         '{}_index{:06d}.tar'
                                                         .format(files_archive_prefix, index))),
                         os.path.basename(constraints_file_filename)])
 
-    subprocess.run(['cp', os.path.join(root_target_field, '{}_index{:06d}.tar'.format(files_archive_prefix,
-                                                                                      index)), temp_dir])
+    # subprocess.run(['cp', os.path.join(root_target_field, '{}_index{:06d}.tar'.format(files_archive_prefix,
+    #                                                                                   index)), temp_dir])
 
     subprocess.run(['tar', '-C', temp_dir, '-xvf', os.path.join(temp_dir, '{}_index{:06d}.tar'
                                                                 .format(files_archive_prefix, index))])
 
-    subprocess.run(['rm', '-rf', os.path.join(root_target_field, '{}_index{:06d}.tar'.format(files_archive_prefix,
-                                                                                             index))])
+    # subprocess.run(['rm', '-rf', os.path.join(root_target_field, '{}_index{:06d}.tar'.format(files_archive_prefix,
+    #                                                                                          index))])
 
     return rms_image_filename, exp_image_filename, constraints_file_filename
 
