@@ -403,9 +403,9 @@ def size_based_crop(image_filename, size_range_x, size_range_y, crop_suffix, out
                                                                              int(size_range_y[1] - size_range_y[0])):
         pass
     else:
-        central_pixel_position = ((size_range_x[0] + size_range_x[1]) / 2, (size_range_y[0] + size_range_y[1]) / 2)
         size_crop_x = size_range_x[1] - size_range_x[0]
         size_crop_y = size_range_y[1] - size_range_y[0]
+        central_pixel_position = ((size_crop_x / 2) + size_range_x[0], (size_crop_y / 2) + size_range_y[0])
         crop_image_size = (size_crop_y, size_crop_x)
         w = wcs.WCS(image_header)
         cropped_image = Cutout2D(image, central_pixel_position, crop_image_size, wcs=w, copy=True)
@@ -418,7 +418,7 @@ def size_based_crop(image_filename, size_range_x, size_range_y, crop_suffix, out
         fits.writeto(os.path.join(output_directory, image_filename), cropped_image.data, cropped_image_header,
                      overwrite=True)
 
-    return output_directory + image_filename
+    return os.path.join(output_directory, image_filename)
 
 
 def catalogue_based_crop(image_filename, external_catalogue, crop_suffix, x_keyword, y_keyword, output_directory):

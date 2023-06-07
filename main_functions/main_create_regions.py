@@ -79,7 +79,7 @@ def main(indices, args):
             sci_image_filenames, rms_image_filenames, seg_image_filenames, exp_image_filenames = \
                 crop_images(sci_image_filenames, rms_image_filenames, seg_image_filenames, exp_image_filenames,
                             wavebands, temp_dir, crop_routine=args.crop_routine, external_catalogue=external_catalogue,
-                            size_range_x=args.size_range_x, size_range_y=args.size_range_x,
+                            size_range_x=args.size_range_x, size_range_y=args.size_range_y,
                             crop_suffix=args.crop_suffix, x_keyword=args.x_pixel_keyword,
                             y_keyword=args.y_pixel_keyword)
             subprocess.run(['cp'] + sci_image_filenames + [root_target_field])

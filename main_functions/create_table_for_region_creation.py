@@ -45,7 +45,7 @@ def main(indices, args):
 
         ordered_wavebands = {b: i for i, b in enumerate(wavebands_list)}
 
-        sci_images_list = sorted(sci_images_list, key=lambda x: ordered_wavebands[x.split('_')[3]])
+        sci_images_list = sorted(sci_images_list, key=lambda x: ordered_wavebands[x.split('_')[1]])
 
         sci_images_encoded = [name.encode('utf8') for name in sci_images_list]
 
@@ -54,7 +54,7 @@ def main(indices, args):
                                                               .format(args.rms_images_suffix)))]
 
         if rms_images_list:
-            rms_images_list = sorted(rms_images_list, key=lambda x: ordered_wavebands[x.split('_')[3]])
+            rms_images_list = sorted(rms_images_list, key=lambda x: ordered_wavebands[x.split('_')[1]])
             rms_images_encoded = [name.encode('utf8') for name in rms_images_list]
         else:
             rms_images_encoded = list(np.full(len(sci_images_list), 'None'.encode('utf8')))
@@ -64,7 +64,7 @@ def main(indices, args):
                                                               .format(args.exp_images_suffix)))]
 
         if exp_images_list:
-            exp_images_list = sorted(exp_images_list, key=lambda x: ordered_wavebands[x.split('_')[3]])
+            exp_images_list = sorted(exp_images_list, key=lambda x: ordered_wavebands[x.split('_')[1]])
             exp_images_encoded = [name.encode('utf8') for name in exp_images_list]
         else:
             exp_images_encoded = list(np.full(len(sci_images_list), 'None'.encode('utf8')))
@@ -72,7 +72,7 @@ def main(indices, args):
         seg_images_list = [os.path.basename(name)
                            for name in glob.glob(os.path.join(root_target_field, '*{}'
                                                               .format(args.seg_images_suffix)))]
-        seg_images_list = sorted(seg_images_list, key=lambda x: ordered_wavebands[x.split('_')[3]])
+        seg_images_list = sorted(seg_images_list, key=lambda x: ordered_wavebands[x.split('_')[1]])
         seg_images_encoded = [name.encode('utf8') for name in seg_images_list]
 
         images_to_compress = sci_images_list + rms_images_list + exp_images_list + seg_images_list
