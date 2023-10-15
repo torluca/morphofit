@@ -258,7 +258,25 @@ def get_sims_gains(telescope_name, img_names, wavebands):
     return effective_gains, instrumental_gains
 
 
-def get_hst_zeropoint(img_name=None, target_name=None, waveband=None):
+def apply_tabulated_extinction(waveband):
+    """
+    To apply extinction in different bandpasses, we use table 6 in Appendix A of "Schlafly and Finkbeiner 2011"
+    https://iopscience.iop.org/article/10.1088/0004-637X/737/2/103#apj398709t6
+    In this table they tabulated the reddening in different bandpasses for a F99 reddening law. In particular, what
+    is tabulated is Δmb/E(B − V)SFD for RV = 2.1, 3.1, 4.1, and 5.1, in the limit that E(B − V)SFD is small, < 1.
+    Therefore, we just need to multiply by the E(B-V) of the region of the sky for the corresponding waveband.
+    We hard code those for RV = 3.1.
+
+    :param waveband:
+    :return:
+    """
+
+    extinctions_hst_filters = {'F435W': 3.610, 'F606W': 2.471, 'F814W': 1.526,
+                               'F105W': 0.969, 'F125W': 0.726, 'F140W': 0.613, 'F160W': 0.512}
+
+    return extinctions_hst_filters[waveband]
+
+def get_hst_zeropoint(img_name=None, target_name=None, waveband=None, e_b_v=None):
     """
 
     :param img_name:
@@ -284,12 +302,12 @@ def get_hst_zeropoint(img_name=None, target_name=None, waveband=None):
         logger.info(e)
         h = fits.getheader(img_name, ext=0)
         zpt = -2.5 * np.log10(h['PHOTFLAM']) - 5 * np.log10(h['PHOTPLAM']) - 2.408
-        zeropoint = zpt
+        zeropoint = zpt - apply_tabulated_extinction(waveband) * e_b_v
 
     return zeropoint
 
 
-def get_omegacam_zeropoint(img_name=None, target_name=None, waveband=None):
+def get_omegacam_zeropoint(img_name=None, target_name=None, waveband=None, e_b_v=None):
     """
 
     :param img_name:
@@ -310,7 +328,7 @@ def get_omegacam_zeropoint(img_name=None, target_name=None, waveband=None):
     return zeropoint
 
 
-def get_jwst_zeropoint(img_name=None, target_name=None, waveband=None):
+def get_jwst_zeropoint(img_name=None, target_name=None, waveband=None, e_b_v=None):
     """
 
     :param img_name:
@@ -330,7 +348,7 @@ def get_jwst_zeropoint(img_name=None, target_name=None, waveband=None):
     return zeropoint
 
 
-def get_zeropoints(telescope_name, target_name, img_names, wavebands):
+def get_zeropoints(telescope_name, target_name, img_names, wavebands, e_b_v=None):
     """
     This function returns the zeropoint of each image coorrected for the galactic extinction
     from the Schlegel dust maps. First we get A/E(B-V)_SFD from Schlafly and Finkbeiner 2011 for Rv = 3.1 and then we
@@ -351,7 +369,7 @@ def get_zeropoints(telescope_name, target_name, img_names, wavebands):
         idx_name = img_names.index(name)
         zeropoint_function = zeropoints_switcher.get(telescope_name, lambda: 'To be implemented...')
         zeropoints[wavebands[idx_name]] = zeropoint_function(name, target_name=target_name,
-                                                             waveband=wavebands[idx_name])
+                                                             waveband=wavebands[idx_name], e_b_v=e_b_v)
 
     return zeropoints
 

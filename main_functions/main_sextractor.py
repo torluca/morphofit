@@ -28,7 +28,7 @@ logger = get_logger(__file__)
 
 
 def run_sextractor(args, telescope_name, target_field_name, root_target_field, sci_images, rms_images, wavebands,
-                   pixel_scale, photo_cmd, psf_fwhm_init_guesses, sextractor_binary,  sextractor_config,
+                   pixel_scale, photo_cmd, psf_fwhm_init_guesses, e_b_v, sextractor_binary,  sextractor_config,
                    sextractor_params, sextractor_filter, sextractor_nnw, sextractor_checkimages,
                    sextractor_checkimages_endings, ext_star_cat, temp_dir):
     """
@@ -76,7 +76,7 @@ def run_sextractor(args, telescope_name, target_field_name, root_target_field, s
     exptimes = get_exposure_times(telescope_name, sci_images, wavebands)
 
     logger.info('=============================== get zeropoints')
-    zeropoints = get_zeropoints(telescope_name, target_field_name, sci_images, wavebands)
+    zeropoints = get_zeropoints(telescope_name, target_field_name, sci_images, wavebands, e_b_v=e_b_v)
 
     logger.info('=============================== get background')
     bkg_amps, bkg_sigmas = get_background_parameters(sci_images, wavebands, se_catalogues,
@@ -196,6 +196,7 @@ def main(indices, args):
         pixel_scale = h5table['pixel_scale'][()]
         photo_cmd = [key.decode('utf8') for key in h5table['photo_cmd'][()]]
         psf_fwhm_init_guesses = h5table['psf_fwhm_init_guesses'][()]
+        e_b_v = h5table['E(B-V)'][()]
 
         sextractor_binary = os.path.join(temp_dir, os.path.basename(h5table['sextractor_binary'][()].decode('utf8')))
         sextractor_config = os.path.join(temp_dir, h5table['sextractor_config'][()].decode('utf8'))
@@ -209,7 +210,7 @@ def main(indices, args):
 
         run_sextractor(args, telescope_name, target_field_name, root_target_field,
                        sci_images, rms_images, wavebands, pixel_scale,
-                       photo_cmd, psf_fwhm_init_guesses, sextractor_binary,
+                       photo_cmd, psf_fwhm_init_guesses, e_b_v, sextractor_binary,
                        sextractor_config, sextractor_params, sextractor_filter,
                        sextractor_nnw, sextractor_checkimages,
                        sextractor_checkimages_endings, ext_star_cat, temp_dir)
