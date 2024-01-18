@@ -57,7 +57,7 @@ def remove_stars(catalogue, wavebands):
     for wave in wavebands:
         if wave != 'f814w':
             mask_list.append((catalogue['CLASS_STAR_{}'.format(wave)] >= 0.95))
-    combined_mask = np.array(sum(mask_list), dtype=np.bool)
+    combined_mask = np.array(sum(mask_list), dtype=bool)
 
     return catalogue[~combined_mask]
 
@@ -76,7 +76,7 @@ def clean_catalogue(catalogue, wavebands):
     for wave in wavebands:
         mask_list.append((catalogue['FLUX_RADIUS_{}'.format(wave)] <= 0))
         mask_list.append((catalogue['MAG_AUTO_{}'.format(wave)] > 35))
-    combined_mask = np.array(sum(mask_list), dtype=np.bool)
+    combined_mask = np.array(sum(mask_list), dtype=bool)
 
     return catalogue[~combined_mask]
 
