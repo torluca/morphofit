@@ -194,7 +194,7 @@ def check_missing(indices, args):
         h5table.close()
 
         try:
-            table = Table.read(os.path.join(root_fullimages_target_fields, '{}_{}_fullimages.cat'
+            table = Table.read(os.path.join(root_fullimages_target_fields, '{}_{}_fullimages_orig.cat'
                                             .format(telescope_name, target_field_name)), format='fits')
             print(len(table))
         except Exception as errmsg:

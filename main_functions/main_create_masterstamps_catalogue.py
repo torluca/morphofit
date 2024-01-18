@@ -219,7 +219,7 @@ def check_missing(indices, args):
         h5table.close()
 
         try:
-            table = Table.read(os.path.join(root_stamps_target_fields, '{}_{}_stamps.cat'
+            table = Table.read(os.path.join(root_stamps_target_fields, '{}_{}_stamps_orig.cat'
                                             .format(telescope_name, target_field_name)), format='fits')
             print(len(table))
         except Exception as errmsg:

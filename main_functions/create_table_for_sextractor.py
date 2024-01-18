@@ -121,6 +121,9 @@ def main(indices, args):
                                         .format(args.resources_archive_prefix, index), args.star_catalogues_path,
                                         external_star_catalogue.decode('utf8'))
 
+        if not os.path.isdir(args.h5pytable_folder):
+            os.makedirs(args.h5pytable_folder, exist_ok=True)
+
         with h5py.File(os.path.join(args.h5pytable_folder, '{}_index{:06d}.h5'
                        .format(args.h5pytable_prefix, index)), mode='w') as h5table:
             h5table.create_dataset(name='telescope_name', data=telescope_name_encoded)
