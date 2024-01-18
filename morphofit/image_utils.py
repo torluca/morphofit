@@ -141,6 +141,7 @@ def create_cutout(image, header, x_source, y_source, effective_radius_source, en
     size_cutout_x = effective_radius_source * enlarging_factor * (abs(np.cos(angle)) + axis_ratio * abs(np.sin(angle)))
     size_cutout_y = effective_radius_source * enlarging_factor * (abs(np.sin(angle)) + axis_ratio * abs(np.cos(angle)))
     cutout_image_size = (size_cutout_y, size_cutout_x)
+    # cutout_image_size = (64, 64)
     w = wcs.WCS(header)
     cutout_image = Cutout2D(image, source_pixel_position, cutout_image_size, wcs=w, copy=True)
     cutout_header = header.copy()
@@ -402,9 +403,9 @@ def size_based_crop(image_filename, size_range_x, size_range_y, crop_suffix, out
                                                                              int(size_range_y[1] - size_range_y[0])):
         pass
     else:
-        central_pixel_position = ((size_range_x[0] + size_range_x[1]) / 2, (size_range_y[0] + size_range_y[1]) / 2)
         size_crop_x = size_range_x[1] - size_range_x[0]
         size_crop_y = size_range_y[1] - size_range_y[0]
+        central_pixel_position = ((size_crop_x / 2) + size_range_x[0], (size_crop_y / 2) + size_range_y[0])
         crop_image_size = (size_crop_y, size_crop_x)
         w = wcs.WCS(image_header)
         cropped_image = Cutout2D(image, central_pixel_position, crop_image_size, wcs=w, copy=True)
@@ -417,7 +418,7 @@ def size_based_crop(image_filename, size_range_x, size_range_y, crop_suffix, out
         fits.writeto(os.path.join(output_directory, image_filename), cropped_image.data, cropped_image_header,
                      overwrite=True)
 
-    return output_directory + image_filename
+    return os.path.join(output_directory, image_filename)
 
 
 def catalogue_based_crop(image_filename, external_catalogue, crop_suffix, x_keyword, y_keyword, output_directory):
@@ -494,9 +495,13 @@ def crop_routine_size_based(sci_image_filename, seg_image_filename, rms_image_fi
     cropped_sci_image_filename = size_based_crop(sci_image_filename, size_range_x, size_range_y,
                                                  crop_suffix, output_directory)
     cropped_sci_image_filenames.append(cropped_sci_image_filename)
-    cropped_seg_image_filename = size_based_crop(seg_image_filename, size_range_x, size_range_y,
-                                                 crop_suffix, output_directory)
-    cropped_seg_image_filenames.append(cropped_seg_image_filename)
+    try:
+        cropped_seg_image_filename = size_based_crop(seg_image_filename, size_range_x, size_range_y,
+                                                     crop_suffix, output_directory)
+        cropped_seg_image_filenames.append(cropped_seg_image_filename)
+    except Exception as e:
+        logger.info(e)
+        logger.info('Missing seg image')
     try:
         cropped_rms_image_filename = size_based_crop(rms_image_filename, size_range_x, size_range_y,
                                                      crop_suffix, output_directory)
@@ -539,10 +544,14 @@ def crop_routine_catalogue_based(sci_image_filename, seg_image_filename, rms_ima
                                                       crop_suffix, x_keyword, y_keyword,
                                                       output_directory)
     cropped_sci_image_filenames.append(cropped_sci_image_filename)
-    cropped_seg_image_filename = catalogue_based_crop(seg_image_filename, external_catalogue,
-                                                      crop_suffix, x_keyword, y_keyword,
-                                                      output_directory)
-    cropped_seg_image_filenames.append(cropped_seg_image_filename)
+    try:
+        cropped_seg_image_filename = catalogue_based_crop(seg_image_filename, external_catalogue,
+                                                          crop_suffix, x_keyword, y_keyword,
+                                                          output_directory)
+        cropped_seg_image_filenames.append(cropped_seg_image_filename)
+    except Exception as e:
+        logger.info(e)
+        logger.info('Missing seg image')
     try:
         cropped_rms_image_filename = catalogue_based_crop(rms_image_filename, external_catalogue,
                                                           crop_suffix, x_keyword, y_keyword,
@@ -586,14 +595,15 @@ def crop_images(sci_image_filenames, rms_image_filenames, seg_image_filenames, e
     cropped_sci_image_filenames, cropped_rms_image_filenames = [], []
     cropped_seg_image_filenames, cropped_exp_image_filenames = [], []
 
-    if (size_range_x is '') | (size_range_y is ''):
+    if (size_range_x == '') | (size_range_y == ''):
         size_range_x = [0, 1000]
         size_range_y = [0, 1000]
+    else:
+        size_range_x = [int(elem) for elem in size_range_x.split(',')]
+        size_range_y = [int(elem) for elem in size_range_y.split(',')]
 
     for i in range(len(wavebands)):
         if crop_routine == 'size_based':
-            size_range_x = [int(elem) for elem in size_range_x.split(',')]
-            size_range_y = [int(elem) for elem in size_range_y.split(',')]
             crop_routine_size_based(sci_image_filenames[i], seg_image_filenames[i],
                                     rms_image_filenames[i], exp_image_filenames[i],
                                     size_range_x, size_range_y,

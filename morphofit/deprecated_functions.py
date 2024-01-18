@@ -1670,3 +1670,35 @@ def beta_seeing_evaluation_deprecated(sci_image_filename, sextractor_catalogue, 
     logger.info('Image: {}, FWHM: {}, Beta Moffat: {}'.format(sci_image_filename, fwhm, beta))
 
     return fwhm, beta
+
+
+def get_zeropoints_deprecated(telescope_name, target_name, img_names, wavebands):
+
+    A_E_B_V_SFD = {'f435w': 3.610, 'f475w': 3.268, 'f606w': 2.471, 'f625w': 2.219, 'f775w': 1.629,
+                   'f814w': 1.526, 'f850lp': 1.243, 'f105w': 0.969, 'f125w': 0.726, 'f140w': 0.613, 'f160w': 0.512}
+    E_B_V_SFD = {'abell370': 0.032, 'abell2744': 0.013, 'abells1063': 0.012, 'macs0416': 0.041, 'macs0717': 0.077,
+                 'macs1149': 0.023, 'macs1206': 0.065}
+    extinction = {
+        'abells1063': {'f435w': 0.05035, 'f475w': 0.04555, 'f606w': 0.03582, 'f625w': 0.03267, 'f775w': 0.02468,
+                       'f814w': 0.02229, 'f850lp': 0.01802, 'f105w': 0.01241, 'f125w': 0.00926, 'f140w': 0.00745,
+                       'f160w': 0.00575},
+        'macs1149': {'f435w': 0.09457, 'f475w': 0.08555, 'f606w': 0.06727, 'f625w': 0.06136, 'f775w': 0.04635,
+                     'f814w': 0.04186, 'f850lp': 0.03384, 'f105w': 0.02331, 'f125w': 0.01739, 'f140w': 0.01399,
+                     'f160w': 0.01080}}
+
+    zeropoints = {}
+    for name in img_names:
+        idx_name = img_names.index(name)
+        if telescope_name == 'HST':
+            h = fits.getheader(name, ext=0)
+            zpt = -2.5 * np.log10(h['PHOTFLAM']) - 5 * np.log10(h['PHOTPLAM']) - 2.408
+            try:
+                zeropoints[wavebands[idx_name]] = zpt - extinction[target_name][wavebands[idx_name]]
+                zeropoints[wavebands[idx_name]] = zpt - (A_E_B_V_SFD[wavebands[idx_name]] * E_B_V_SFD[target_name])
+            except Exception as e:
+                logger.info(e)
+                zeropoints[wavebands[idx_name]] = zpt
+        else:
+            logger.info('To be implemented...')
+
+    return zeropoints

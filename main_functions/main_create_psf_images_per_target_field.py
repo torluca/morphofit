@@ -126,7 +126,7 @@ def main(indices, args):
         h5table.close()
 
         output_directory = os.path.join(root_target_field, 'stars')
-        os.makedirs(output_directory, exist_ok=False)
+        os.makedirs(output_directory, exist_ok=True)
 
         save_psf_output_files(temp_dir, output_directory, wavebands, target_field_name, moffat_psf_flag=moffat_psf_flag,
                               observed_psf_flag=observed_psf_flag, pca_psf_flag=pca_psf_flag,

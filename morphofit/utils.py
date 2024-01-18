@@ -45,6 +45,46 @@ def get_hst_saturation(img_name):
     return saturation
 
 
+def get_omegacam_saturation(img_name):
+    """
+
+    :param img_name:
+    :return:
+    """
+
+    header = fits.getheader(img_name)
+    saturation = header['SATURATE']
+
+    return saturation
+
+
+def get_jwst_saturation(img_name):
+    """
+
+        :param img_name:
+        :return:
+        """
+
+    header = fits.getheader(img_name)
+    saturation = header['SATURATE']
+
+    return saturation
+
+
+def get_generic_saturation(img_name):
+    """
+
+    :param img_name:
+    :return:
+    """
+
+    data = fits.getdata(img_name)
+    newdata = data[~np.isnan(data)]
+    saturation = max(newdata)
+
+    return saturation
+
+
 def get_saturations(telescope_name, img_names, wavebands):
     """
     This function computes the maximum pixel value in an image as estimate of the saturation limit.
@@ -55,7 +95,7 @@ def get_saturations(telescope_name, img_names, wavebands):
     :return saturations: dict, dictionary of maximum pixel value in the image.
     """
 
-    saturations_switcher = {'HST': get_hst_saturation}
+    saturations_switcher = {'HST': get_hst_saturation, 'OCAM': get_omegacam_saturation, 'JWST': get_jwst_saturation}
 
     saturations = {}
     for name in img_names:
@@ -82,6 +122,32 @@ def get_hst_exposure_time(img_name):
     return exptime
 
 
+def get_omegacam_exposure_time(img_name):
+    """
+
+    :param img_name:
+    :return:
+    """
+
+    h = fits.getheader(img_name, ext=0)
+    exptime = h['EXPTIME']
+
+    return exptime
+
+
+def get_jwst_exposure_time(img_name):
+    """
+
+        :param img_name:
+        :return:
+        """
+
+    h = fits.getheader(img_name, ext=0)
+    exptime = h['TEXPTIME']
+
+    return exptime
+
+
 def get_exposure_times(telescope_name, img_names, wavebands):
     """
     This function reads the exposure time from the image HEADER.
@@ -92,18 +158,14 @@ def get_exposure_times(telescope_name, img_names, wavebands):
     :return exptimes: dict, dictionary of exposure times.
     """
 
-    exptimes_switcher = {'HST': get_hst_exposure_time}
+    exptimes_switcher = {'HST': get_hst_exposure_time, 'OCAM': get_omegacam_exposure_time,
+                         'JWST': get_jwst_exposure_time}
 
     exptimes = {}
     for name in img_names:
         idx_name = img_names.index(name)
         exptime_function = exptimes_switcher.get(telescope_name, lambda: 'To be implemented...')
         exptimes[wavebands[idx_name]] = exptime_function(name)
-        # if telescope_name == 'HST':
-        #     h = fits.getheader(name, ext=0)
-        #     exptimes[wavebands[idx_name]] = h['EXPTIME']
-        # else:
-        #     logger.info('To be implemented...')
 
     return exptimes
 
@@ -122,6 +184,34 @@ def get_hst_gain(img_name):
     return effective_gain, instrumental_gain
 
 
+def get_omegacam_gain(img_name):
+    """
+
+    :param img_name:
+    :return:
+    """
+
+    h = fits.getheader(img_name, ext=0)
+    effective_gain = h['GAIN']
+    instrumental_gain = 2.5
+
+    return effective_gain, instrumental_gain
+
+
+def get_jwst_gain(img_name):
+    """
+
+    :param img_name:
+    :return:
+    """
+
+    h = fits.getheader(img_name, ext=0)
+    effective_gain = h['TEXPTIME']
+    instrumental_gain = 2.0  # 2.05 ± 0.4 for short-wave channel, 1.82 ± 0.4 for long-wave channel
+
+    return effective_gain, instrumental_gain
+
+
 def get_gains(telescope_name, img_names, wavebands):
     """
     This function computes the gains for each HST image.
@@ -132,7 +222,7 @@ def get_gains(telescope_name, img_names, wavebands):
     :return gains: dict, dictionary of gains in the images.
     """
 
-    gains_switcher = {'HST': get_hst_gain}
+    gains_switcher = {'HST': get_hst_gain, 'OCAM': get_omegacam_gain, 'JWST': get_jwst_gain}
 
     effective_gains = {}
     instrumental_gains = {}
@@ -140,12 +230,6 @@ def get_gains(telescope_name, img_names, wavebands):
         idx_name = img_names.index(name)
         gain_function = gains_switcher.get(telescope_name, lambda: 'To be implemented...')
         effective_gains[wavebands[idx_name]], instrumental_gains[wavebands[idx_name]] = gain_function(name)
-        # if telescope_name == 'HST':
-        #     h = fits.getheader(name, ext=0)
-        #     effective_gains[wavebands[idx_name]] = h['CCDGAIN'] * h['EXPTIME']
-        #     instrumental_gains[wavebands[idx_name]] = h['CCDGAIN']
-        # else:
-        #     logger.info('To be implemented...')
 
     return effective_gains, instrumental_gains
 
@@ -174,7 +258,25 @@ def get_sims_gains(telescope_name, img_names, wavebands):
     return effective_gains, instrumental_gains
 
 
-def get_hst_zeropoint(img_name, target_name=None, waveband=None):
+def apply_tabulated_extinction(waveband):
+    """
+    To apply extinction in different bandpasses, we use table 6 in Appendix A of "Schlafly and Finkbeiner 2011"
+    https://iopscience.iop.org/article/10.1088/0004-637X/737/2/103#apj398709t6
+    In this table they tabulated the reddening in different bandpasses for a F99 reddening law. In particular, what
+    is tabulated is Δmb/E(B − V)SFD for RV = 2.1, 3.1, 4.1, and 5.1, in the limit that E(B − V)SFD is small, < 1.
+    Therefore, we just need to multiply by the E(B-V) of the region of the sky for the corresponding waveband.
+    We hard code those for RV = 3.1.
+
+    :param waveband:
+    :return:
+    """
+
+    extinctions_hst_filters = {'F435W': 3.610, 'F606W': 2.471, 'F814W': 1.526,
+                               'F105W': 0.969, 'F125W': 0.726, 'F140W': 0.613, 'F160W': 0.512}
+
+    return extinctions_hst_filters[waveband]
+
+def get_hst_zeropoint(img_name=None, target_name=None, waveband=None, e_b_v=None):
     """
 
     :param img_name:
@@ -193,20 +295,60 @@ def get_hst_zeropoint(img_name, target_name=None, waveband=None):
                                               'f105w': 26.24737, 'f125w': 26.22997,
                                               'f140w': 26.45051, 'f160w': 25.94510}}
 
-    h = fits.getheader(img_name, ext=0)
-    zpt = -2.5 * np.log10(h['PHOTFLAM']) - 5 * np.log10(h['PHOTPLAM']) - 2.408
-
     try:
         zeropoint = zeropoints_tortorelli2018[target_name][waveband]
 
     except Exception as e:
         logger.info(e)
-        zeropoint = zpt
+        h = fits.getheader(img_name, ext=0)
+        zpt = -2.5 * np.log10(h['PHOTFLAM']) - 5 * np.log10(h['PHOTPLAM']) - 2.408
+        zeropoint = zpt - apply_tabulated_extinction(waveband) * e_b_v
 
     return zeropoint
 
 
-def get_zeropoints(telescope_name, target_name, img_names, wavebands):
+def get_omegacam_zeropoint(img_name=None, target_name=None, waveband=None, e_b_v=None):
+    """
+
+    :param img_name:
+    :param target_name:
+    :param waveband:
+    :return:
+    """
+
+    try:
+        h = fits.getheader(img_name, ext=0)
+        zeropoint = h['ZEROPOINT']
+    except Exception as e:
+        logger.info(e)
+        # nominal_zeropoints_kids = {'u': 22.9, 'g': 24.8, 'r': 24.7, 'i': 24.2}
+        zeropoints_m1115 = {'m1115': {'u': 0., 'g': 0., 'r': 0., 'i': 0.}}
+        zeropoint = zeropoints_m1115[target_name][waveband]
+
+    return zeropoint
+
+
+def get_jwst_zeropoint(img_name=None, target_name=None, waveband=None, e_b_v=None):
+    """
+
+    :param img_name:
+    :param target_name:
+    :param waveband:
+    :return:
+    """
+
+    h = fits.getheader(img_name, ext=0)
+
+    try:
+        zeropoint = h['ZP']
+    except Exception as e:
+        logger.info(e)
+        zeropoint = -6.10 - 2.5 * np.log10(h['PIXAR_SR'])
+
+    return zeropoint
+
+
+def get_zeropoints(telescope_name, target_name, img_names, wavebands, e_b_v=None):
     """
     This function returns the zeropoint of each image coorrected for the galactic extinction
     from the Schlegel dust maps. First we get A/E(B-V)_SFD from Schlafly and Finkbeiner 2011 for Rv = 3.1 and then we
@@ -220,57 +362,14 @@ def get_zeropoints(telescope_name, target_name, img_names, wavebands):
     :return zeropoints: dict, dictionary of extinction corrected zeropoints.
     """
 
-    # A_E_B_V_SFD = {'f435w': 3.610, 'f475w': 3.268, 'f606w': 2.471, 'f625w': 2.219, 'f775w': 1.629,
-    #                'f814w': 1.526, 'f850lp': 1.243, 'f105w': 0.969, 'f125w': 0.726, 'f140w': 0.613, 'f160w': 0.512}
-    # E_B_V_SFD = {'abell370': 0.032, 'abell2744': 0.013, 'abells1063': 0.012, 'macs0416': 0.041, 'macs0717': 0.077,
-    #              'macs1149': 0.023, 'macs1206': 0.065}
-    # extinction = {
-    #     'abells1063': {'f435w': 0.05035, 'f475w': 0.04555, 'f606w': 0.03582, 'f625w': 0.03267, 'f775w': 0.02468,
-    #                    'f814w': 0.02229, 'f850lp': 0.01802, 'f105w': 0.01241, 'f125w': 0.00926, 'f140w': 0.00745,
-    #                    'f160w': 0.00575},
-    #     'macs1149': {'f435w': 0.09457, 'f475w': 0.08555, 'f606w': 0.06727, 'f625w': 0.06136, 'f775w': 0.04635,
-    #                  'f814w': 0.04186, 'f850lp': 0.03384, 'f105w': 0.02331, 'f125w': 0.01739, 'f140w': 0.01399,
-    #                  'f160w': 0.01080}}
-    # extinction = {'abells1063': {'f435w': 0.05035, 'f606w': 0.03582, 'f814w': 0.02229,
-    #                              'f105w': 0.01241, 'f125w': 0.00926, 'f140w': 0.00745, 'f160w': 0.00575},
-    #               'macs0416': {'f435w': 0.16859, 'f606w': 0.11992, 'f814w': 0.07463,
-    #                            'f105w': 0.04156, 'f125w': 0.03100, 'f140w': 0.02494, 'f160w': 0.01925},
-    #               'macs1149': {'f435w': 0.09457, 'f606w': 0.06727, 'f814w': 0.04186,
-    #                            'f105w': 0.02331, 'f125w': 0.01739, 'f140w': 0.01399, 'f160w': 0.01080}}
-
-    # zeropoints_tortorelli2018 = {'abells1063': {'f435w': 25.60744, 'f606w': 26.45534, 'f814w': 25.93702,
-    #                                             'f105w': 26.25827, 'f125w': 26.23810,
-    #                                             'f140w': 26.45705, 'f160w': 25.95015},
-    #                              'macs0416': {'f435w': 25.48920, 'f606w': 26.37124, 'f814w': 25.88468,
-    #                                           'f105w': 26.22912, 'f125w': 26.21636,
-    #                                           'f140w': 26.43956, 'f160w': 25.93665},
-    #                              'macs1149': {'f435w': 25.56322, 'f606w': 26.42389, 'f814w': 25.91745,
-    #                                           'f105w': 26.24737, 'f125w': 26.22997,
-    #                                           'f140w': 26.45051, 'f160w': 25.94510}}
-
-    zeropoints_switcher = {'HST': get_hst_zeropoint}
+    zeropoints_switcher = {'HST': get_hst_zeropoint, 'OCAM': get_omegacam_zeropoint, 'JWST': get_jwst_zeropoint}
 
     zeropoints = {}
     for name in img_names:
         idx_name = img_names.index(name)
         zeropoint_function = zeropoints_switcher.get(telescope_name, lambda: 'To be implemented...')
         zeropoints[wavebands[idx_name]] = zeropoint_function(name, target_name=target_name,
-                                                             waveband=wavebands[idx_name])
-
-        # zpt = zeropoints_switcher.get(telescope_name, lambda: 'To be implemented...')
-        # zeropoints[wavebands[idx_name]] = zpt[target_name][wavebands[idx_name]]
-        # if telescope_name == 'HST':
-        #     h = fits.getheader(name, ext=0)
-        #     zpt = -2.5 * np.log10(h['PHOTFLAM']) - 5 * np.log10(h['PHOTPLAM']) - 2.408
-        #     try:
-        #         zeropoints[wavebands[idx_name]] = zeropoints_tortorelli2018[target_name][wavebands[idx_name]]
-        #         # zeropoints[wavebands[idx_name]] = zpt - extinction[target_name][wavebands[idx_name]]
-        #         # zeropoints[wavebands[idx_name]] = zpt - (A_E_B_V_SFD[wavebands[idx_name]] * E_B_V_SFD[target_name])
-        #     except Exception as e:
-        #         logger.info(e)
-        #         zeropoints[wavebands[idx_name]] = zpt
-        # else:
-        #     logger.info('To be implemented...')
+                                                             waveband=wavebands[idx_name], e_b_v=e_b_v)
 
     return zeropoints
 
@@ -1085,12 +1184,12 @@ def compress_and_copy_files_for_galfit_stamps(index, root_target_field, temp_dir
                          os.path.basename(target_galaxies_catalogue_filename),
                          os.path.basename(source_galaxies_catalogue_filename)]
 
-    subprocess.run(['tar', '-cvf', os.path.join(root_target_field, '{}_index{:06d}.tar'
+    subprocess.run(['tar', '-cvf', os.path.join(temp_dir, '{}_index{:06d}.tar'
                                                 .format(files_archive_prefix, index)), '-C',
                     root_target_field] + files_to_compress)
 
     subprocess.run(['tar', '-C', os.path.join(root_target_field, 'stars'), '--append',
-                    '--file={}'.format(os.path.join(root_target_field,
+                    '--file={}'.format(os.path.join(temp_dir,
                                                     '{}_index{:06d}.tar'
                                                     .format(files_archive_prefix, index))),
                     os.path.basename(psf_image_filename)])
@@ -1099,7 +1198,7 @@ def compress_and_copy_files_for_galfit_stamps(index, root_target_field, temp_dir
         rms_image_filename = None
     else:
         subprocess.run(['tar', '-C', root_target_field, '--append',
-                        '--file={}'.format(os.path.join(root_target_field,
+                        '--file={}'.format(os.path.join(temp_dir,
                                                         '{}_index{:06d}.tar'
                                                         .format(files_archive_prefix, index))),
                         os.path.basename(rms_image_filename)])
@@ -1108,7 +1207,7 @@ def compress_and_copy_files_for_galfit_stamps(index, root_target_field, temp_dir
         exp_image_filename = None
     else:
         subprocess.run(['tar', '-C', root_target_field, '--append',
-                        '--file={}'.format(os.path.join(root_target_field,
+                        '--file={}'.format(os.path.join(temp_dir,
                                                         '{}_index{:06d}.tar'
                                                         .format(files_archive_prefix, index))),
                         os.path.basename(exp_image_filename)])
@@ -1117,19 +1216,19 @@ def compress_and_copy_files_for_galfit_stamps(index, root_target_field, temp_dir
         constraints_file_filename = 'None'
     else:
         subprocess.run(['tar', '-C', root_target_field, '--append',
-                        '--file={}'.format(os.path.join(root_target_field,
+                        '--file={}'.format(os.path.join(temp_dir,
                                                         '{}_index{:06d}.tar'
                                                         .format(files_archive_prefix, index))),
                         os.path.basename(constraints_file_filename)])
 
-    subprocess.run(['cp', os.path.join(root_target_field, '{}_index{:06d}.tar'.format(files_archive_prefix,
-                                                                                      index)), temp_dir])
+    # subprocess.run(['cp', os.path.join(root_target_field, '{}_index{:06d}.tar'.format(files_archive_prefix,
+    #                                                                                   index)), temp_dir])
 
     subprocess.run(['tar', '-C', temp_dir, '-xvf', os.path.join(temp_dir, '{}_index{:06d}.tar'
                                                                 .format(files_archive_prefix, index))])
 
-    subprocess.run(['rm', '-rf', os.path.join(root_target_field, '{}_index{:06d}.tar'.format(files_archive_prefix,
-                                                                                             index))])
+    # subprocess.run(['rm', '-rf', os.path.join(root_target_field, '{}_index{:06d}.tar'.format(files_archive_prefix,
+    #                                                                                          index))])
 
     return rms_image_filename, exp_image_filename, constraints_file_filename
 

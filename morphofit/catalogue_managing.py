@@ -1566,7 +1566,7 @@ def combine_properties(properties_mastercatalogue, wavebands, telescope_name, ta
                                        mean_bkgx, std_bkgx, mean_bkgy, std_bkgy, median_chisquare])
                 except Exception as e:
                     logger.info(e)
-                    row_to_add.extend(['None', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+                    row_to_add.extend(['sersic', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 
             table_properties.add_row(row_to_add)
 

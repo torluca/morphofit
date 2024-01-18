@@ -17,7 +17,7 @@ import subprocess
 
 # morphofit imports
 from morphofit.utils import get_saturations, get_gains, get_exposure_times, get_zeropoints, create_image_params_table
-from morphofit.background_estimation import get_hst_background_parameters
+from morphofit.background_estimation import get_background_parameters
 from morphofit.psf_estimation import get_seeings
 from morphofit.image_utils import create_detection_image, create_rms_detection_image
 from morphofit.run_sextractor import get_sextractor_forced_cmd, run_sex_dual_mode
@@ -28,7 +28,7 @@ logger = get_logger(__file__)
 
 
 def run_sextractor(args, telescope_name, target_field_name, root_target_field, sci_images, rms_images, wavebands,
-                   pixel_scale, photo_cmd, seeing_initial_guesses, sextractor_binary,  sextractor_config,
+                   pixel_scale, photo_cmd, psf_fwhm_init_guesses, e_b_v, sextractor_binary,  sextractor_config,
                    sextractor_params, sextractor_filter, sextractor_nnw, sextractor_checkimages,
                    sextractor_checkimages_endings, ext_star_cat, temp_dir):
     """
@@ -42,7 +42,7 @@ def run_sextractor(args, telescope_name, target_field_name, root_target_field, s
     :param wavebands:
     :param pixel_scale:
     :param photo_cmd:
-    :param seeing_initial_guesses:
+    :param psf_fwhm_init_guesses:
     :param sextractor_binary:
     :param sextractor_config:
     :param sextractor_params:
@@ -76,20 +76,20 @@ def run_sextractor(args, telescope_name, target_field_name, root_target_field, s
     exptimes = get_exposure_times(telescope_name, sci_images, wavebands)
 
     logger.info('=============================== get zeropoints')
-    zeropoints = get_zeropoints(telescope_name, target_field_name, sci_images, wavebands)
+    zeropoints = get_zeropoints(telescope_name, target_field_name, sci_images, wavebands, e_b_v=e_b_v)
 
     logger.info('=============================== get background')
-    bkg_amps, bkg_sigmas = get_hst_background_parameters(sci_images, wavebands, se_catalogues,
-                                                         saturations, zeropoints, effective_gains, pixel_scale,
-                                                         photo_cmd,
-                                                         sextractor_binary, sextractor_config,
-                                                         sextractor_params, sextractor_filter,
-                                                         sextractor_nnw, sextractor_checkimages,
-                                                         sextractor_checkimages_endings, rms_images=rms_images)
+    bkg_amps, bkg_sigmas = get_background_parameters(sci_images, wavebands, se_catalogues,
+                                                     saturations, zeropoints, effective_gains, pixel_scale,
+                                                     psf_fwhm_init_guesses, photo_cmd,
+                                                     sextractor_binary, sextractor_config,
+                                                     sextractor_params, sextractor_filter,
+                                                     sextractor_nnw, sextractor_checkimages,
+                                                     sextractor_checkimages_endings, rms_images=rms_images)
 
     logger.info('=============================== get seeing')
     fwhms, betas = get_seeings(telescope_name, sci_images, wavebands, se_catalogues, ext_star_cat, pixel_scale,
-                               bkg_amps, seeing_initial_guesses, args.sextractor_ra_keyword,
+                               bkg_amps, psf_fwhm_init_guesses, args.sextractor_ra_keyword,
                                args.sextractor_dec_keyword, args.star_catalogue_ra_keyword,
                                args.star_catalogue_dec_keyword)
 
@@ -195,7 +195,8 @@ def main(indices, args):
         wavebands = [band.decode('utf8') for band in h5table['wavebands'][()]]
         pixel_scale = h5table['pixel_scale'][()]
         photo_cmd = [key.decode('utf8') for key in h5table['photo_cmd'][()]]
-        seeing_initial_guesses = h5table['seeing_initial_guesses'][()]
+        psf_fwhm_init_guesses = h5table['psf_fwhm_init_guesses'][()]
+        e_b_v = h5table['E(B-V)'][()]
 
         sextractor_binary = os.path.join(temp_dir, os.path.basename(h5table['sextractor_binary'][()].decode('utf8')))
         sextractor_config = os.path.join(temp_dir, h5table['sextractor_config'][()].decode('utf8'))
@@ -209,7 +210,7 @@ def main(indices, args):
 
         run_sextractor(args, telescope_name, target_field_name, root_target_field,
                        sci_images, rms_images, wavebands, pixel_scale,
-                       photo_cmd, seeing_initial_guesses, sextractor_binary,
+                       photo_cmd, psf_fwhm_init_guesses, e_b_v, sextractor_binary,
                        sextractor_config, sextractor_params, sextractor_filter,
                        sextractor_nnw, sextractor_checkimages,
                        sextractor_checkimages_endings, ext_star_cat, temp_dir)

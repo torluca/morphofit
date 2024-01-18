@@ -95,8 +95,9 @@ def main(indices, args):
                      '-BACK_SIZE'.encode('utf8'), str(args.back_size).encode('utf8'),
                      '-BACK_FILTERSIZE'.encode('utf8'), str(args.back_filtersize).encode('utf8')]
 
-        initial_guesses = args.seeing_initial_guesses.split(',')
-        seeing_initial_guesses = np.full(len(wavebands_list), [float(name) for name in initial_guesses])
+        initial_guesses = args.psf_fwhm_init_guesses.split(',')
+        psf_fwhm_init_guesses = np.full(len(wavebands_list), [float(name) for name in initial_guesses])
+        e_b_v = float(args.e_b_v.split(',')[index])
 
         sextractor_binary = args.sextractor_binary_filename.encode('utf8')
         sextractor_config = args.sextractor_config_filename.encode('utf8')
@@ -130,7 +131,8 @@ def main(indices, args):
             h5table.create_dataset(name='wavebands', data=wavebands_encoded)
             h5table.create_dataset(name='pixel_scale', data=args.pixel_scale)
             h5table.create_dataset(name='photo_cmd', data=photo_cmd)
-            h5table.create_dataset(name='seeing_initial_guesses', data=seeing_initial_guesses)
+            h5table.create_dataset(name='psf_fwhm_init_guesses', data=psf_fwhm_init_guesses)
+            h5table.create_dataset(name='E(B-V)', data=e_b_v)
             h5table.create_dataset(name='sextractor_binary', data=sextractor_binary)
             h5table.create_dataset(name='sextractor_config', data=sextractor_config)
             h5table.create_dataset(name='sextractor_params', data=sextractor_params)
@@ -217,8 +219,10 @@ def setup(args):
                         help='path to star catalogues folder')
     parser.add_argument('--pixel_scale', type=float, action='store', default=0.060,
                         help='image pixel scale')
-    parser.add_argument('--seeing_initial_guesses', type=str, action='store', default='0.1',
+    parser.add_argument('--psf_fwhm_init_guesses', type=str, action='store', default='0.1',
                         help='list of seeing initial guesses for all wavebands')
+    parser.add_argument('--e_b_v', type=str, action='store', default='0.0',
+                        help='list of E(B-V) extinctions')
     parser.add_argument('--detect_minarea', type=float, action='store', default=10,
                         help='SExtractor DETECT_MINAREA parameter')
     parser.add_argument('--detect_thresh', type=float, action='store', default=1.0,
