@@ -271,8 +271,8 @@ def apply_tabulated_extinction(waveband):
     :return:
     """
 
-    extinctions_hst_filters = {'F435W': 3.610, 'F606W': 2.471, 'F814W': 1.526,
-                               'F105W': 0.969, 'F125W': 0.726, 'F140W': 0.613, 'F160W': 0.512}
+    extinctions_hst_filters = {'f435w': 3.610, 'f606w': 2.471, 'f814w': 1.526,
+                               'f105w': 0.969, 'f125w': 0.726, 'f140w': 0.613, 'f160w': 0.512}
 
     return extinctions_hst_filters[waveband]
 
