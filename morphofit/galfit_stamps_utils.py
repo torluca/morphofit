@@ -293,6 +293,8 @@ def format_light_profiles_stamps(target_galaxies_catalogue, neighbouring_source_
 def format_sersic_indices_stamps(target_galaxies_catalogue, neighbouring_source_galaxies_catalogue,
                                  target_galaxies_keys, neighb_galaxies_keys, waveband):
     """
+    In the first implementation I wrote the code to fit the Sersic index all the time because when using stamps you
+    don't know it at the beginning.
 
     :param target_galaxies_catalogue:
     :param neighbouring_source_galaxies_catalogue:

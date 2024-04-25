@@ -271,10 +271,11 @@ def apply_tabulated_extinction(waveband):
     :return:
     """
 
-    extinctions_hst_filters = {'f435w': 3.610, 'f606w': 2.471, 'f814w': 1.526,
-                               'f105w': 0.969, 'f125w': 0.726, 'f140w': 0.613, 'f160w': 0.512}
+    extinctions_hst_filters = {'F435W': 3.610, 'F606W': 2.471, 'F814W': 1.526,
+                               'F105W': 0.969, 'F125W': 0.726, 'F140W': 0.613, 'F160W': 0.512}
 
     return extinctions_hst_filters[waveband]
+
 
 def get_hst_zeropoint(img_name=None, target_name=None, waveband=None, e_b_v=None):
     """
@@ -282,18 +283,19 @@ def get_hst_zeropoint(img_name=None, target_name=None, waveband=None, e_b_v=None
     :param img_name:
     :param target_name:
     :param waveband:
+    :param e_b_v:
     :return:
     """
 
-    zeropoints_tortorelli2018 = {'abells1063': {'f435w': 25.60744, 'f606w': 26.45534, 'f814w': 25.93702,
-                                                'f105w': 26.25827, 'f125w': 26.23810,
-                                                'f140w': 26.45705, 'f160w': 25.95015},
-                                 'macs0416': {'f435w': 25.48920, 'f606w': 26.37124, 'f814w': 25.88468,
-                                              'f105w': 26.22912, 'f125w': 26.21636,
-                                              'f140w': 26.43956, 'f160w': 25.93665},
-                                 'macs1149': {'f435w': 25.56322, 'f606w': 26.42389, 'f814w': 25.91745,
-                                              'f105w': 26.24737, 'f125w': 26.22997,
-                                              'f140w': 26.45051, 'f160w': 25.94510}}
+    zeropoints_tortorelli2018 = {'abells1063': {'F435W': 25.60744, 'F606W': 26.45534, 'F814W': 25.93702,
+                                                'F105W': 26.25827, 'F125W': 26.23810,
+                                                'F140W': 26.45705, 'F160W': 25.95015},
+                                 'macs0416': {'F435W': 25.48920, 'F606W': 26.37124, 'F814W': 25.88468,
+                                              'F105W': 26.22912, 'F125W': 26.21636,
+                                              'F140W': 26.43956, 'F160W': 25.93665},
+                                 'macs1149': {'F435W': 25.56322, 'F606W': 26.42389, 'F814W': 25.91745,
+                                              'F105W': 26.24737, 'F125W': 26.22997,
+                                              'F140W': 26.45051, 'F160W': 25.94510}}
 
     try:
         zeropoint = zeropoints_tortorelli2018[target_name][waveband]
@@ -313,6 +315,7 @@ def get_omegacam_zeropoint(img_name=None, target_name=None, waveband=None, e_b_v
     :param img_name:
     :param target_name:
     :param waveband:
+    :param e_b_v:
     :return:
     """
 
@@ -359,6 +362,7 @@ def get_zeropoints(telescope_name, target_name, img_names, wavebands, e_b_v=None
     :param target_name:
     :param img_names:
     :param wavebands:
+    :param e_b_v:
     :return zeropoints: dict, dictionary of extinction corrected zeropoints.
     """
 

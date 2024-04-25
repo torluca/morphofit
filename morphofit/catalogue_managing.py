@@ -219,36 +219,78 @@ def get_sersic_parameters_from_header(output_model_image_header, index):
     try:
         source_x_position = [output_model_image_header['{}_XC'.format(index + 2)].split(' +/- ')[0],
                              output_model_image_header['{}_XC'.format(index + 2)].split(' +/- ')[1]]
+    except Exception as e:
+        logger.info(e)
+        try:
+            source_x_position = [output_model_image_header['{}_XC'.format(index + 2)][1:-1], 0]
+        except Exception as e:
+            logger.info(e)
+            source_x_position = [np.nan, 0]
+
+    try:
         source_y_position = [output_model_image_header['{}_YC'.format(index + 2)].split(' +/- ')[0],
                              output_model_image_header['{}_YC'.format(index + 2)].split(' +/- ')[1]]
+    except Exception as e:
+        logger.info(e)
+        try:
+            source_y_position = [output_model_image_header['{}_YC'.format(index + 2)][1:-1], 0]
+        except Exception as e:
+            logger.info(e)
+            source_y_position = [np.nan, 0]
+
+    try:
         total_magnitude = [output_model_image_header['{}_MAG'.format(index + 2)].split(' +/- ')[0],
                            output_model_image_header['{}_MAG'.format(index + 2)].split(' +/- ')[1]]
+    except Exception as e:
+        logger.info(e)
+        try:
+            total_magnitude = [output_model_image_header['{}_MAG'.format(index + 2)][1:-1], 0]
+        except Exception as e:
+            logger.info(e)
+            total_magnitude = [np.nan, 0]
+
+    try:
         effective_radius = [output_model_image_header['{}_RE'.format(index + 2)].split(' +/- ')[0],
                             output_model_image_header['{}_RE'.format(index + 2)].split(' +/- ')[1]]
+    except Exception as e:
+        logger.info(e)
+        try:
+            effective_radius = [output_model_image_header['{}_RE'.format(index + 2)][1:-1], 0]
+        except Exception as e:
+            logger.info(e)
+            effective_radius = [np.nan, 0]
+
+    try:
         sersic_index = [output_model_image_header['{}_N'.format(index + 2)].split(' +/- ')[0],
                         output_model_image_header['{}_N'.format(index + 2)].split(' +/- ')[1]]
+    except Exception as e:
+        logger.info(e)
+        try:
+            sersic_index = [output_model_image_header['{}_N'.format(index + 2)][1:-1], 0]
+        except Exception as e:
+            logger.info(e)
+            sersic_index = [np.nan, 0]
+
+    try:
         axis_ratio = [output_model_image_header['{}_AR'.format(index + 2)].split(' +/- ')[0],
                       output_model_image_header['{}_AR'.format(index + 2)].split(' +/- ')[1]]
+    except Exception as e:
+        logger.info(e)
+        try:
+            axis_ratio = [output_model_image_header['{}_AR'.format(index + 2)][1:-1], 0]
+        except Exception as e:
+            logger.info(e)
+            axis_ratio = [np.nan, 0]
+
+    try:
         position_angle = [output_model_image_header['{}_PA'.format(index + 2)].split(' +/- ')[0],
                           output_model_image_header['{}_PA'.format(index + 2)].split(' +/- ')[1]]
     except Exception as e:
         logger.info(e)
         try:
-            source_x_position = [output_model_image_header['{}_XC'.format(index + 2)][1:-1], 0]
-            source_y_position = [output_model_image_header['{}_YC'.format(index + 2)][1:-1], 0]
-            total_magnitude = [output_model_image_header['{}_MAG'.format(index + 2)][1:-1], 0]
-            effective_radius = [output_model_image_header['{}_RE'.format(index + 2)][1:-1], 0]
-            sersic_index = [output_model_image_header['{}_N'.format(index + 2)][1:-1], 0]
-            axis_ratio = [output_model_image_header['{}_AR'.format(index + 2)][1:-1], 0]
             position_angle = [output_model_image_header['{}_PA'.format(index + 2)][1:-1], 0]
         except Exception as e:
             logger.info(e)
-            source_x_position = [np.nan, 0]
-            source_y_position = [np.nan, 0]
-            total_magnitude = [np.nan, 0]
-            effective_radius = [np.nan, 0]
-            sersic_index = [np.nan, 0]
-            axis_ratio = [np.nan, 0]
             position_angle = [np.nan, 0]
 
     return source_x_position, source_y_position, total_magnitude, effective_radius, sersic_index, axis_ratio, \
@@ -1187,13 +1229,13 @@ def compute_covariance_measurements(first_property, second_property, property_er
         first_property = np.array(first_property)[~w]
         second_property = np.array(second_property)[~w]
         property_errors = np.array(property_errors)[~w]
-        property = np.empty((len(first_property), 2))
-        property[:, 0] = first_property
-        property[:, 1] = second_property
+        properties = np.empty((len(first_property), 2))
+        properties[:, 0] = first_property
+        properties[:, 1] = second_property
         weights_properties = [1 / property_error ** 2 for property_error in property_errors]
         weights = np.empty((len(weights_properties), 1))
         weights[:, 0] = weights_properties
-        weighted_stats = DescrStatsW(property, weights=weights, ddof=0)
+        weighted_stats = DescrStatsW(properties, weights=weights, ddof=0)
     else:
         w = (np.isnan(first_property)) | (np.isnan(second_property))
         first_property = np.array(first_property)[~w]

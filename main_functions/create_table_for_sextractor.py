@@ -93,7 +93,8 @@ def main(indices, args):
                      '-PHOT_AUTOAPERS'.encode('utf8'), args.phot_autoapers.encode('utf8'),
                      '-PHOT_FLUXFRAC'.encode('utf8'), str(args.phot_fluxfrac).encode('utf8'),
                      '-BACK_SIZE'.encode('utf8'), str(args.back_size).encode('utf8'),
-                     '-BACK_FILTERSIZE'.encode('utf8'), str(args.back_filtersize).encode('utf8')]
+                     '-BACK_FILTERSIZE'.encode('utf8'), str(args.back_filtersize).encode('utf8'),
+                     '-BACKPHOTO_THICK'.encode('utf8'), str(args.backphoto_thick).encode('utf8')]
 
         initial_guesses = args.psf_fwhm_init_guesses.split(',')
         psf_fwhm_init_guesses = np.full(len(wavebands_list), [float(name) for name in initial_guesses])
@@ -250,6 +251,8 @@ def setup(args):
                         help='SExtractor BACK_SIZE parameter')
     parser.add_argument('--back_filtersize', type=float, action='store', default=3,
                         help='SExtractor BACK_FILTERSIZE parameter')
+    parser.add_argument('--backphoto_thick', type=float, action='store', default=24,
+                        help='SExtractor BACKPHOTO_THICK parameter')
     parser.add_argument('--sextractor_binary_filename', type=str, action='store', default='/usr/local/bin/sex',
                         help='SExtractor binary filename')
     parser.add_argument('--sextractor_config_filename', type=str, action='store', default='default.sex',
